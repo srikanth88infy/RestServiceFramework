@@ -1,7 +1,5 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
-import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
-
 import javax.persistence.*;
 
 /**
@@ -23,7 +21,7 @@ public class Placement {
     @Basic
     private Integer amount;
     @Basic
-    private String storing_position;
+    private String storingPosition;
 
     @ManyToOne
     @PrimaryKeyJoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
@@ -36,6 +34,21 @@ public class Placement {
     /** Generated code **/
 
     public Placement() {
+    }
+
+    public Placement(Item item, Rack rack, Integer amount, String storing_position) {
+        this.item = item;
+        this.rack = rack;
+        this.amount = amount;
+        this.storingPosition = storing_position;
+    }
+
+    public Placement(long id, Item item, Rack rack, Integer amount, String storing_position) {
+        this.id = id;
+        this.item = item;
+        this.rack = rack;
+        this.amount = amount;
+        this.storingPosition = storing_position;
     }
 
     /**
@@ -52,12 +65,12 @@ public class Placement {
         this.amount = amount;
     }
 
-    public String getStoring_position() {
-        return storing_position;
+    public String getStoringPosition() {
+        return storingPosition;
     }
 
-    public void setStoring_position(String storing_position) {
-        this.storing_position = storing_position;
+    public void setStoringPosition(String storingPosition) {
+        this.storingPosition = storingPosition;
     }
 
     public Item getItem() {
@@ -74,5 +87,13 @@ public class Placement {
 
     public void setRack(Rack rack) {
         this.rack = rack;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
