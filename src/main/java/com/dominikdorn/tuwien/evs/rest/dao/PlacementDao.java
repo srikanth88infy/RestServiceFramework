@@ -11,9 +11,9 @@ import java.util.List;
  * dominik.dorn@tuwien.ac.at
  */
 public interface PlacementDao {
-    public Rack persist(Placement placement);
+    public Placement persist(Placement placement);
 
-    public Rack update(Placement placement);
+    public Placement update(Placement placement);
 
     public List<Placement> getAll();
 
