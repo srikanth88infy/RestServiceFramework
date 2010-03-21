@@ -1,9 +1,9 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Dominik Dorn
@@ -16,7 +16,8 @@ import javax.persistence.Id;
 @Entity
 public class Rack {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "RACK_GEN")
+    @SequenceGenerator(name="RACK_GEN", allocationSize=25, sequenceName = "rack_seq")
     private Long id;
     @Basic
     private String name;
@@ -25,8 +26,24 @@ public class Rack {
     @Basic
     private Integer place;
 
+    @OneToMany(mappedBy = "rack")
+    private List<Placement> placements;
+
     /** generated methods **/
     public Rack() {
+    }
+
+    public Rack(Long id, String name, String description, Integer place) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.place = place;
+    }
+
+    public Rack(String name, String description, Integer place) {
+        this.name = name;
+        this.description = description;
+        this.place = place;
     }
 
     public Long getId() {
@@ -64,5 +81,13 @@ public class Rack {
 
     public void setPlace(Integer place) {
         this.place = place;
+    }
+
+    public List<Placement> getPlacements() {
+        return placements;
+    }
+
+    public void setPlacements(List<Placement> placements) {
+        this.placements = placements;
     }
 }

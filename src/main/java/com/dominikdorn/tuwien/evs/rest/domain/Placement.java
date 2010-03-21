@@ -1,8 +1,8 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+
+import javax.persistence.*;
 
 /**
  * Dominik Dorn
@@ -15,16 +15,23 @@ import javax.persistence.OneToMany;
 @Entity
 public class Placement {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "PLACEMENT_GEN")
+    @SequenceGenerator(name="PLACEMENT_GEN", allocationSize=25, sequenceName = "placement_seq")
+    long id;   
+
     @Basic
     private Integer amount;
     @Basic
     private String storing_position;
 
-    @OneToMany
+    @ManyToOne
+    @PrimaryKeyJoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
     private Item item;
 
-    @OneToMany
-    private Placement placement;
+    @ManyToOne
+    @PrimaryKeyJoinColumn(name = "RACK_ID", referencedColumnName = "ID")
+    private Rack rack;
 
     /** Generated code **/
 
@@ -61,11 +68,11 @@ public class Placement {
         this.item = item;
     }
 
-    public Placement getPlacement() {
-        return placement;
+    public Rack getRack() {
+        return rack;
     }
 
-    public void setPlacement(Placement placement) {
-        this.placement = placement;
+    public void setRack(Rack rack) {
+        this.rack = rack;
     }
 }

@@ -1,24 +1,26 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+
+import javax.persistence.*;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Dominik Dorn
  * 0626165
  * dominik.dorn@tuwien.ac.at
- *
+ * <p/>
  * An Item is a generic name for a Type of Element,
  * e.g. Server Intel Quad Core 3 HE
  */
 @Entity
+
 public class Item {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "ITEM_GEN")
+    @SequenceGenerator(name="ITEM_GEN", allocationSize=25, sequenceName = "item_seq")
     private Long id;
     @Basic
     private String name;
@@ -27,8 +29,26 @@ public class Item {
     @Basic
     private Integer size;
 
-    /** generated methods **/
+    @OneToMany(mappedBy = "item")
+    private List<Placement> placements;
+
+    /**
+     * generated methods *
+     */
     public Item() {
+    }
+
+    public Item(Long id, String name, String description, Integer size) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.size = size;
+    }
+
+    public Item(String name, String description, Integer size) {
+        this.name = name;
+        this.description = description;
+        this.size = size;
     }
 
     public Long getId() {
@@ -57,6 +77,7 @@ public class Item {
 
     /**
      * Size is amount of slots of standardized size
+     *
      * @return
      */
     public Integer getSize() {
@@ -65,5 +86,13 @@ public class Item {
 
     public void setSize(Integer size) {
         this.size = size;
+    }
+
+    public List<Placement> getPlacements() {
+        return placements;
+    }
+
+    public void setPlacements(List<Placement> placements) {
+        this.placements = placements;
     }
 }
