@@ -7,6 +7,8 @@ import org.junit.Test;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -18,6 +20,29 @@ public abstract class AbstractItemDaoTest {
 
     protected ItemDao dao;
 
+    final Item item1 = new Item(
+            "1HE Intel Atom Single-CPU CSE502 Server",
+            "1HE Intel Atom Single-CPU CSE502 Server",
+            1
+    );
+
+    final Item item2 = new Item(
+            "1HE Intel Single-CPU SC811 Server (Nehalem) ",
+            "1HE Intel Single-CPU SC811 Server (Nehalem) ",
+            1
+    );
+
+    final Item item3 = new Item(
+            200l,
+            "1HE Intel Single-CPU SC813M Server (Nehalem) ",
+            "1HE Intel Single-CPU SC813M Server (Nehalem) ",
+            1
+    );
+
+    final Item item4 = new Item(
+            "1HE Intel Atom D510 Single-CPU CSE502 Server ",
+            "1HE Intel Atom D510 Single-CPU CSE502 Server", 1);
+
     @Test(expected = PersistenceException.class)
     public void testPersist_shouldThrowExceptionWhenNullParameter()
     {
@@ -28,12 +53,7 @@ public abstract class AbstractItemDaoTest {
     @Test
     public void testPersist_shouldWork()
     {
-        Item item = new Item();
-        item.setName("1HE Intel Atom Single-CPU CSE502 Server");
-        item.setSize(1);
-        item.setDescription("1HE Intel Atom Single-CPU CSE502 Server ");
-
-        Item newItem = dao.persist(item);
+        Item newItem = dao.persist(item1);
 
         assertNotNull(newItem);
         assertTrue(newItem.getId() > 0);
@@ -60,12 +80,7 @@ public abstract class AbstractItemDaoTest {
     @Test
     public void testGetById_shouldWorkWithPrePersistedEntity()
     {
-        Item item = new Item();
-        item.setName("1HE Intel Single-CPU SC811 Server (Nehalem) ");
-        item.setSize(1);
-        item.setDescription("1HE Intel Single-CPU SC811 Server (Nehalem) ");
-
-        Item newItem = dao.persist(item);
+        Item newItem = dao.persist(item2);
 
         assertNotNull(newItem);
         assertTrue(newItem.getId() > 0);
@@ -82,15 +97,8 @@ public abstract class AbstractItemDaoTest {
     @Test
     public void testGetById_shouldFailWithNonExistingEntity()
     {
-        Item item = new Item();
-        item.setId(200l);
-        item.setName("1HE Intel Single-CPU SC811 Server (Nehalem) ");
-        item.setSize(1);
-        item.setDescription("1HE Intel Single-CPU SC811 Server (Nehalem) ");
-
         // no persist here!
-
-        Item resultItem = dao.getById(item.getId());
+        Item resultItem = dao.getById(item3.getId());
         assertNull(resultItem);
     }
 
@@ -103,12 +111,7 @@ public abstract class AbstractItemDaoTest {
     @Test
     public void testUpdate_shouldWork()
     {
-        Item item = new Item();
-        item.setName("1HE Intel Atom D510 Single-CPU CSE502 Server ");
-        item.setSize(1);
-        item.setDescription("1HE Intel Atom D510 Single-CPU CSE502 Server");
-
-        Item newItem = dao.persist(item);
+        Item newItem = dao.persist(item4);
 
         assertNotNull(newItem);
         assertTrue(newItem.getId() > 0);
@@ -120,7 +123,48 @@ public abstract class AbstractItemDaoTest {
         assertEquals(2, (int) newItem2.getSize());
     }
 
+    @Test
+    public void testGetAll_shouldReturnNothing()
+    {
+        List<Item> results = dao.getAll();
+        assertNotNull(results);
+        assertTrue(results.isEmpty());
+    }
 
+    @Test
+    public void testGetAll_shouldFindItems()
+    {
+        dao.persist(item1);
+        dao.persist(item2);
+        dao.persist(item3);
+        List<Item> results = dao.getAll();
+        assertNotNull(results);
+        assertEquals(3,results.size());
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testDelete_nullParam_shouldThrowException()
+    {
+        dao.delete(null);
+        fail();
+    }
+
+    @Test
+    public void testDelete_shouldWorkCorrectly()
+    {
+        List<Item> items = dao.getAll();
+        assertTrue(items.isEmpty());
+
+        dao.persist(item1);
+
+        items = dao.getAll();
+        assertEquals(1, items.size());
+
+        dao.delete(item1);
+
+        items = dao.getAll();
+        assertTrue(items.isEmpty());
+    }
 
 
 }
