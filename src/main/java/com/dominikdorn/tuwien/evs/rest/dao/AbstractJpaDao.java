@@ -30,8 +30,9 @@ public class AbstractJpaDao<TYPE> {
         return em;
     }
 
-    public void setEm(EntityManager em) {
+    public AbstractJpaDao setEm(EntityManager em) {
         this.em = em;
+        return this;
     }
 
 
