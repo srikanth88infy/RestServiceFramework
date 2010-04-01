@@ -9,4 +9,14 @@
         <listener-class>com.dominikdorn.rest.listeners.ApplicationStartupListener</listener-class>
     </listener>
 
+    <servlet>
+        <servlet-name>RestRequestHandlerServlet</servlet-name>
+        <description>The Rest-Service Servlet</description>
+        <servlet-class>com.dominikdorn.rest.requestHandling.RequestHandlerServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>RestRequestHandlerServlet</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
 </web-app>
