@@ -1,7 +1,6 @@
 package com.dominikdorn.tuwien.evs.rest.dao;
 
 import com.dominikdorn.tuwien.evs.rest.domain.Placement;
-import com.dominikdorn.tuwien.evs.rest.domain.Rack;
 
 import java.util.List;
 
