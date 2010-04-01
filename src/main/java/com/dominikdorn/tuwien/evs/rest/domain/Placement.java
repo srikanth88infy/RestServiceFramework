@@ -19,7 +19,7 @@ public class Placement {
     long id;   
 
     @Basic
-    private Integer amount;
+    private int amount;
     @Basic
     private String storingPosition;
 
@@ -57,11 +57,11 @@ public class Placement {
      * The constraint placement.amount * item.size <= rack.place
      * @return
      */
-    public Integer getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 

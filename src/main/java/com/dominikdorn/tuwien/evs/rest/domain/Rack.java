@@ -3,6 +3,7 @@ package com.dominikdorn.tuwien.evs.rest.domain;
 import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,26 +15,27 @@ import java.util.List;
  * certain amount of space available.
  */
 @Entity
+@Restful("racks")
 public class Rack {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "RACK_GEN")
     @SequenceGenerator(name="RACK_GEN", allocationSize=25, sequenceName = "rack_seq")
-    private Long id;
+    private long id;
     @Basic
     private String name;
     @Basic
     private String description;
     @Basic
-    private Integer place;
+    private int place;
 
     @OneToMany(mappedBy = "rack")
-    private List<Placement> placements;
+    private List<Placement> placements = new ArrayList<Placement>();
 
     /** generated methods **/
     public Rack() {
     }
 
-    public Rack(Long id, String name, String description, Integer place) {
+    public Rack(long id, String name, String description, Integer place) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -46,11 +48,11 @@ public class Rack {
         this.place = place;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

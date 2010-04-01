@@ -3,6 +3,7 @@ package com.dominikdorn.tuwien.evs.rest.domain;
 import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -15,13 +16,13 @@ import java.util.List;
  * e.g. Server Intel Quad Core 3 HE
  */
 @Entity
-
+@Restful("items")
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "ITEM_GEN")
     @SequenceGenerator(name="ITEM_GEN", allocationSize=25, sequenceName = "item_seq")
-    private Long id;
+    private long id;
     @Basic
     private String name;
     @Basic
@@ -30,7 +31,7 @@ public class Item {
     private Integer size;
 
     @OneToMany(mappedBy = "item")
-    private List<Placement> placements;
+    private List<Placement> placements = new ArrayList<Placement>();
 
     /**
      * generated methods *
