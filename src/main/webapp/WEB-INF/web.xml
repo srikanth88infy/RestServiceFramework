@@ -6,7 +6,7 @@
     <display-name>domdorns rest-services</display-name>
 
     <listener>
-        <listener-class>com.dominikdorn.tuwien.evs.rest.listeners.RestAnnotationListener</listener-class>
+        <listener-class>com.dominikdorn.rest.listeners.ApplicationStartupListener</listener-class>
     </listener>
 
 </web-app>
