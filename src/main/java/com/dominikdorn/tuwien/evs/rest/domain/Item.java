@@ -96,4 +96,30 @@ public class Item {
     public void setPlacements(List<Placement> placements) {
         this.placements = placements;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Item item = (Item) o;
+
+        if (id != item.id) return false;
+        if (description != null ? !description.equals(item.description) : item.description != null) return false;
+        if (name != null ? !name.equals(item.name) : item.name != null) return false;
+        if (placements != null ? !placements.equals(item.placements) : item.placements != null) return false;
+        if (size != null ? !size.equals(item.size) : item.size != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (size != null ? size.hashCode() : 0);
+        result = 31 * result + (placements != null ? placements.hashCode() : 0);
+        return result;
+    }
 }
