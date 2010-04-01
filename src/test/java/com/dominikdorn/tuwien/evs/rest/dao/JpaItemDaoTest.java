@@ -14,7 +14,7 @@ import javax.persistence.Persistence;
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public class JpaItemDaoTestImpl extends AbstractItemDaoTest {
+public class JpaItemDaoTest extends AbstractItemDaoTest {
 
     private static EntityManagerFactory emf;
 
@@ -49,7 +49,7 @@ public class JpaItemDaoTestImpl extends AbstractItemDaoTest {
             em.close();
     }
 
-    public JpaItemDaoTestImpl() {
+    public JpaItemDaoTest() {
 
     }
 

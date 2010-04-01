@@ -14,8 +14,9 @@ import javax.persistence.Persistence;
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public class JpaRackDaoTestImpl extends AbstractRackDaoTest {
-        private static EntityManagerFactory emf;
+public class JpaPlacementDaoTest extends AbstractPlacementDaoTest {
+
+    private static EntityManagerFactory emf;
 
     private EntityManager em;
 
@@ -32,9 +33,12 @@ public class JpaRackDaoTestImpl extends AbstractRackDaoTest {
     @Before
     public void beginTransaction() {
         em = emf.createEntityManager();
-        JpaRackDao realDao = new JpaRackDao();
+        JpaPlacementDao realDao = new JpaPlacementDao();
         realDao.setEm(em);
         dao = realDao;
+        itemDao = (ItemDao) new JpaItemDao().setEm(em);
+        rackDao = (RackDao) new JpaRackDao().setEm(em);
+        
         em.getTransaction().begin();
     }
 
@@ -48,6 +52,8 @@ public class JpaRackDaoTestImpl extends AbstractRackDaoTest {
             em.close();
     }
 
-    public JpaRackDaoTestImpl() {
+    public JpaPlacementDaoTest() {
+
     }
+
 }
