@@ -1,5 +1,7 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
+import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+
 import javax.persistence.*;
 
 /**
@@ -11,6 +13,7 @@ import javax.persistence.*;
  * to a certain Rack. One has to
  */
 @Entity
+@Restful("placements")
 public class Placement {
 
     @Id
