@@ -1,11 +1,8 @@
-package com.dominikdorn.tuwien.evs.rest.dao;
-
-import com.dominikdorn.tuwien.evs.rest.domain.Item;
+package com.dominikdorn.rest.dao;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
-import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
