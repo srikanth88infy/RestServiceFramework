@@ -47,13 +47,13 @@ public class AnnotationScanner {
             for(String s : restfulClasses)
             {
                 try {
-                    System.out.println("s = " + s);
-                    result.put(s, Class.forName(s));
+                    Class clazz = Class.forName(s);
+                    Restful r = (Restful) clazz.getAnnotation(Restful.class);
+                    result.put(  r.value(),clazz  );
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException("Couldn't load a class we previously found. This should never happen",
                             e);
                 }
-
             }
         }
 
