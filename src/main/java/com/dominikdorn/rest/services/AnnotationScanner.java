@@ -1,11 +1,14 @@
 package com.dominikdorn.rest.services;
 
 import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+import com.dominikdorn.tuwien.evs.rest.annotations.Searchable;
 import org.scannotation.AnnotationDB;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,5 +64,18 @@ public class AnnotationScanner {
     }
 
 
+    public Set<String> getSearchableFieldsForClass(Class clazz){
+        Set<String> result = new HashSet<String>();
+
+        for(Field f : clazz.getDeclaredFields())
+        {
+            Searchable sa = f.getAnnotation(Searchable.class);
+            if(sa != null)
+            {
+                result.add(f.getName());
+            }
+        }
+        return result;
+    }
 
 }
