@@ -39,7 +39,15 @@ public class ApplicationStartupListener implements ServletContextListener {
         AnnotationScanner scanner = new AnnotationScanner();
         ObjectRegistry registry = new ObjectRegistry();
 
-        registry.setObjectDatabase(scanner.getRegisteredObjectMap(getWebInfClassesURL(sce.getServletContext())));
+        Map<String, Class> objectDatabase = scanner.getRegisteredObjectMap(getWebInfClassesURL(sce.getServletContext()));
+        registry.setObjectDatabase(objectDatabase);
+        for(Class clazz : objectDatabase.values())
+        {
+            for( String field : scanner.getSearchableFieldsForClass(clazz))
+            {
+                registry.addSearchableField(clazz, field);
+            }
+        }
 
         // creating marshalling-strategies
         JsonMarshallingStrategy jsonMarshallingStrategy = new JsonMarshallingStrategy();
