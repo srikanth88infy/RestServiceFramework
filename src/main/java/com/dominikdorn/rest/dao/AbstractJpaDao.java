@@ -18,9 +18,22 @@ public class AbstractJpaDao<TYPE> {
 
     protected Class entityClass;
 
+    public Class getEntityClass() {
+        return entityClass;
+    }
+
+    public void setEntityClass(Class entityClass) {
+        this.entityClass = entityClass;
+    }
+
     public AbstractJpaDao() {
         ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
         this.entityClass = (Class<TYPE>) genericSuperclass.getActualTypeArguments()[0];
+    }
+
+    public AbstractJpaDao(Class clazz)
+    {
+        this.entityClass = clazz;
     }
 
     public EntityManager getEm() {
