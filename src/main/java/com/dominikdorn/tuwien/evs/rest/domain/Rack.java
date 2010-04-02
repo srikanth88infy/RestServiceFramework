@@ -1,6 +1,7 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
 import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+import com.dominikdorn.tuwien.evs.rest.annotations.Searchable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,8 +23,10 @@ public class Rack {
     @SequenceGenerator(name="RACK_GEN", allocationSize=25, sequenceName = "rack_seq")
     private long id;
     @Basic
+    @Searchable
     private String name;
     @Basic
+    @Searchable
     private String description;
     @Basic
     private int place;

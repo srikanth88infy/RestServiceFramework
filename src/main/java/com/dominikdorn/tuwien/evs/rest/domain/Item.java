@@ -1,6 +1,7 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
 import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+import com.dominikdorn.tuwien.evs.rest.annotations.Searchable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -23,10 +24,15 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "ITEM_GEN")
     @SequenceGenerator(name="ITEM_GEN", allocationSize=25, sequenceName = "item_seq")
     private long id;
+
     @Basic
+    @Searchable
     private String name;
+
     @Basic
+    @Searchable
     private String description;
+
     @Basic
     private Integer size;
 
