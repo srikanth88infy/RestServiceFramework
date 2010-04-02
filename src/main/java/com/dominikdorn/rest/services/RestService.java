@@ -1,5 +1,11 @@
 package com.dominikdorn.rest.services;
 
+import com.dominikdorn.rest.dao.AbstractJpaDao;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,14 +15,43 @@ import java.util.Map;
  */
 public class RestService {
 
-    public String handleGetById(Class clazz, Object id, String mediaType)
-    {
-        return "handleGetById(Class clazz, Object id, String mediaType)";
+    Map<Class, AbstractJpaDao> daoMap = new HashMap<Class, AbstractJpaDao>();
+
+    private EntityManagerFactory emf;
+
+    public RestService(EntityManagerFactory emf) {
+        this.emf = emf;
     }
 
-    public String handleGetAll(Class clazz, String mediaType)
+
+    public AbstractJpaDao getDao(Class clazz)
     {
-        return "    public String handleGetAll(Class clazz, String mediaType)";
+        AbstractJpaDao dao;
+        if(!daoMap.containsKey(clazz))
+        {
+            dao = new AbstractJpaDao(clazz);
+            daoMap.put(clazz, dao);
+        }
+        dao =  daoMap.get(clazz);
+        EntityManager em = emf.createEntityManager();
+
+        dao.setEm(em);
+
+        return dao;
+    }
+
+
+
+    public Object handleGetById(Class clazz, Object id, String mediaType)
+    {
+        return getDao(clazz).getById((Long) id);
+//        return "handleGetById(Class clazz, Object id, String mediaType)";
+    }
+
+    public List handleGetAll(Class clazz, String mediaType)
+    {
+        return getDao(clazz).getAll();
+//        return "    public String handleGetAll(Class clazz, String mediaType)";
     }
 
     public String handleSearch(Class clazz, Map<String,String> attributes, String mediaType)
