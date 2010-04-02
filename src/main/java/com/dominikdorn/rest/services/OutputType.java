@@ -8,6 +8,7 @@ package com.dominikdorn.rest.services;
 public enum OutputType {    
     UNSUPPORTED,
     TEXT,
+    XHTML,
     JSON,
     XML
 }
