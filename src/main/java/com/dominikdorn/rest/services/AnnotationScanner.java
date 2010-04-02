@@ -34,7 +34,7 @@ public class AnnotationScanner {
         try {
             db.scanArchives(new URL[]{classpath});
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException("failed to scan through the classpath. Is your harddrive ok?", e);
         }
 
 
@@ -42,9 +42,6 @@ public class AnnotationScanner {
 
         Map<String, Class> result = new HashMap<String, Class>();
 
-
-
-        System.out.println("found theses classes");
         if(restfulClasses != null)
         {
             for(String s : restfulClasses)
@@ -53,15 +50,11 @@ public class AnnotationScanner {
                     System.out.println("s = " + s);
                     result.put(s, Class.forName(s));
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    throw new RuntimeException("Couldn't load a class we previously found. This should never happen",
+                            e);
                 }
 
             }
-
-        }
-        else
-        {
-            System.out.println("found no classes");
         }
 
         return result;
