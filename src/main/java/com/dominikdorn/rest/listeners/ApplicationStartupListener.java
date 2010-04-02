@@ -8,7 +8,10 @@ import com.dominikdorn.rest.marshalling.XmlMarshallingStrategy;
 import com.dominikdorn.rest.services.AnnotationScanner;
 import com.dominikdorn.rest.services.ObjectRegistry;
 import com.dominikdorn.rest.services.OutputType;
+import com.dominikdorn.rest.services.RestService;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -57,11 +60,16 @@ public class ApplicationStartupListener implements ServletContextListener {
         strategies.put(OutputType.JSON, jsonMarshallingStrategy);
         strategies.put(OutputType.XML, xmlMarshallingStrategy);
 
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("RestPersistenceUnit");
+
 
         // creating marshaller
         Marshaller marshaller = new Marshaller(strategies, OutputType.JSON);
 
-        Invoker invoker = new Invoker(marshaller);
+        RestService service = new RestService(emf);
+
+
+        Invoker invoker = new Invoker(marshaller, service);
 
 
         // registers the registry & the invoker in application scope
