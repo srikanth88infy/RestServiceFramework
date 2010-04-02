@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
  * dominik.dorn@tuwien.ac.at
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target(ElementType.FIELD)
 public @interface Searchable {
 }
