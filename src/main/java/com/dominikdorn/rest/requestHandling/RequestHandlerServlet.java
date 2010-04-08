@@ -1,7 +1,10 @@
 package com.dominikdorn.rest.requestHandling;
 
 import com.dominikdorn.rest.invoking.Invoker;
+import com.dominikdorn.rest.services.EncodingNegotiator;
 import com.dominikdorn.rest.services.ObjectRegistry;
+import com.dominikdorn.rest.services.OutputType;
+import com.dominikdorn.rest.services.RemotingError;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -10,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -42,123 +44,24 @@ public class RequestHandlerServlet extends HttpServlet {
         this.invoker = invoker;
     }
 
-
-    Pattern findAll = Pattern.compile("^/([a-zA-Z0-9]+)(/?)");
-    Pattern specificId = Pattern.compile("^/([a-zA-Z0-9]+)/([0-9]+)");
-    Pattern search = Pattern.compile("^/([a-zA-Z0-9]+)/search");
-
-    Pattern genericMatchWithoutSlash = Pattern.compile("^/([a-zA-Z0-9]+)");
-    Pattern genericMatchWithSlash = Pattern.compile("^/([a-zA-Z0-9]+)/");
-    Pattern genericMatch = Pattern.compile("^/([a-zA-Z0-9]+)(/(([0-9]+)|search))?");
-
-
-    public OperationType evaluateRequest(String pathInfo) {
-        Matcher matcher;
-
-
-        matcher = genericMatch.matcher(pathInfo);
-        if (!matcher.matches()) {
-            matcher = genericMatchWithoutSlash.matcher(pathInfo);
-            if (!matcher.matches()) {
-                matcher = genericMatchWithSlash.matcher(pathInfo);
-                if (!matcher.matches()) {
-                    return OperationType.BAD_REQUEST;
-                }
-            }
-        }
-
-        matcher = specificId.matcher(pathInfo);
-        if (matcher.matches()) {
-            return OperationType.SPECIFIC_ID;
-        }
-
-        matcher = search.matcher(pathInfo);
-        if (matcher.matches()) {
-            return OperationType.SEARCH;
-        }
-
-        matcher = findAll.matcher(pathInfo);
-        if (matcher.matches()) {
-            return OperationType.ONLY_RESOURCE;
-        }
-
-
-        return OperationType.BAD_REQUEST;
-    }
-
-    public String getResourceName(OperationType type, String pathInfo) {
-        if (OperationType.ONLY_RESOURCE == type) {
-            Matcher matcher = genericMatch.matcher(pathInfo);
-            if (matcher.matches()) {
-                return matcher.group(1);
-            }
-        }
-
-        if (OperationType.ONLY_RESOURCE == type) {
-            Matcher matcher = genericMatchWithSlash.matcher(pathInfo);
-            if (matcher.matches()) {
-                return matcher.group(1);
-            }
-        }
-
-
-        if (OperationType.SEARCH == type) {
-            Matcher matcher = genericMatch.matcher(pathInfo);
-            if (matcher.matches()) {
-                return matcher.group(1);
-            }
-        }
-
-        if (OperationType.SPECIFIC_ID == type) {
-            Matcher matcher = genericMatch.matcher(pathInfo);
-            if (matcher.matches()) {
-                return matcher.group(1);
-            }
-        }
-
-        return null;
-    }
-
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
+        OperationType type = (OperationType) req.getAttribute("restOperationType");
+        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
+        Class clazz = (Class) req.getAttribute("restClazz");
 
-        OperationType type = evaluateRequest(pathInfo);
-
-        if (type == OperationType.INVALID_TYPE)
-            throw new ServletException("An Invalid OperationType was found");
-
-        if (type == OperationType.BAD_REQUEST) {
-            // return 400 Bad Request error, as the syntax is incorrect.
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            resp.flushBuffer();
-            return;
-
-        }
-
-        String resourceName = getResourceName(type, pathInfo);
-
-        if (resourceName == null || !registry.isRegisteredItemName(resourceName)) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            resp.flushBuffer();
-            return;
-        }
-        Matcher matcher;
-        Class clazz = registry.getRegisteredClass(resourceName);
-
-        String response = "NOT PROCESSED - ERROR";
+        String response = "NOT PROCESSED - ERROR (doGet)";
         /*** everything the same until here **/
 
 
         switch (type) {
             case SPECIFIC_ID: {
-                // we are having a get request for a specific id
-                // do something with it.
-                matcher = specificId.matcher(pathInfo);
-                matcher.matches();
-                Long id = Long.parseLong(matcher.group(2));
-                response = invoker.handleGetById(clazz, id, req.getHeader("Accept"));
+                Long id = (Long) req.getAttribute("restSpecificId");
+                try {
+                    response = invoker.handleGetById(clazz, id, outputType);
+                } catch (RemotingError remotingError) {
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
             break;
             case SEARCH: {
@@ -181,48 +84,44 @@ public class RequestHandlerServlet extends HttpServlet {
                         // TODO
                         // Create a remotingError here
                     } else {
-                        response = invoker.handleSearch(clazz, searchParams, req.getHeader("Accept"));
+                        try {
+                            response = invoker.handleSearch(clazz, searchParams,outputType);
+                        } catch (RemotingError remotingError) {
+                            remotingError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        }
                     }
                 }
             }
             break;
             case ONLY_RESOURCE:
-                response = invoker.handleGetAll(clazz, req.getHeader("Accept"));
+                try {
+                    response = invoker.handleGetAll(clazz, outputType);
+                } catch (RemotingError remotingError) {
+                    remotingError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
                 break;
         }
-        resp.getOutputStream().print(response);
-        resp.flushBuffer();
+        if("ERROR".equals(response))
+        {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        else
+        {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getOutputStream().write(response.getBytes());
+        }
+
     }
 
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
+        OperationType type = (OperationType) req.getAttribute("restOperationType");
+        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
+        Class clazz = (Class) req.getAttribute("restClazz");
 
-        OperationType type = evaluateRequest(pathInfo);
+        String response = "NOT PROCESSED - ERROR (doPut)";
 
-        if (type == OperationType.INVALID_TYPE)
-            throw new ServletException("An Invalid OperationType was found");
-
-        if (type == OperationType.BAD_REQUEST) {
-            // return 400 Bad Request error, as the syntax is incorrect.
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            resp.flushBuffer();
-            return;
-
-        }
-
-        String resourceName = getResourceName(type, pathInfo);
-
-        if (resourceName == null || !registry.isRegisteredItemName(resourceName)) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            resp.flushBuffer();
-            return;
-        }
-        Matcher matcher;
-        Class clazz = registry.getRegisteredClass(resourceName);
-
-        String response = "NOT PROCESSED - ERROR";
         /*** everything the same until here **/
 
 
@@ -230,10 +129,12 @@ public class RequestHandlerServlet extends HttpServlet {
             case SPECIFIC_ID: {
                 // we are having a get request for a specific id
                 // do something with it.
-                matcher = specificId.matcher(pathInfo);
-                matcher.matches();
-                Long id = Long.parseLong(matcher.group(2));
-                response = invoker.handlePutOnObject(clazz, id, req.getParameterMap(), req.getHeader("Accept"));
+                Long id = (Long) req.getAttribute("restSpecificId");
+                try {
+                    response = invoker.handlePutOnObject(clazz, id, req.getParameterMap(), outputType);
+                } catch (RemotingError remotingError) {
+                    remotingError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
             break;
             case SEARCH: {
@@ -241,42 +142,33 @@ public class RequestHandlerServlet extends HttpServlet {
             }
             break;
             case ONLY_RESOURCE:
-                response = invoker.handlePutOnResource(clazz, req.getQueryString(), req.getHeader("Accept"));
+                try {
+                    response = invoker.handlePutOnResource(clazz, req.getQueryString(), outputType);
+                } catch (RemotingError remotingError) {
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
                 break;
         }
-        resp.getOutputStream().print(response);
-        resp.flushBuffer();
+        if("ERROR".equals(response))
+        {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        else
+        {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getOutputStream().write(response.getBytes());
+        }
     }
 
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
+        OperationType type = (OperationType) req.getAttribute("restOperationType");
+        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
+        Class clazz = (Class) req.getAttribute("restClazz");
 
-        OperationType type = evaluateRequest(pathInfo);
+        String response = "NOT PROCESSED - ERROR (doDelete)";
 
-        if (type == OperationType.INVALID_TYPE)
-            throw new ServletException("An Invalid OperationType was found");
-
-        if (type == OperationType.BAD_REQUEST) {
-            // return 400 Bad Request error, as the syntax is incorrect.
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            resp.flushBuffer();
-            return;
-
-        }
-
-        String resourceName = getResourceName(type, pathInfo);
-
-        if (resourceName == null || !registry.isRegisteredItemName(resourceName)) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            resp.flushBuffer();
-            return;
-        }
-        Matcher matcher;
-        Class clazz = registry.getRegisteredClass(resourceName);
-
-        String response = "NOT PROCESSED - ERROR";
         /*** everything the same until here **/
 
 
@@ -284,10 +176,12 @@ public class RequestHandlerServlet extends HttpServlet {
             case SPECIFIC_ID: {
                 // we are having a get request for a specific id
                 // do something with it.
-                matcher = specificId.matcher(pathInfo);
-                matcher.matches();
-                Long id = Long.parseLong(matcher.group(2));
-                response = invoker.handlePostOnObject(clazz, id, req.getParameterMap(), req.getHeader("Accept"));
+                Long id = (Long) req.getAttribute("restSpecificId");
+                try {
+                    response = invoker.handlePostOnObject(clazz, id, req.getParameterMap(), outputType);
+                } catch (RemotingError remotingError) {
+                    resp.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
+                }
             }
             break;
             case SEARCH: {
@@ -295,52 +189,42 @@ public class RequestHandlerServlet extends HttpServlet {
             }
             break;
             case ONLY_RESOURCE:
-                response = invoker.handlePostOnResource(clazz, req.getQueryString(), req.getHeader("Accept"));
+                try {
+                    response = invoker.handlePostOnResource(clazz, req.getParameterMap(), outputType);
+                } catch (RemotingError remotingError) {
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
                 break;
         }
-        resp.getOutputStream().print(response);
-        resp.flushBuffer();
+        if("ERROR".equals(response))
+        {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        else
+        {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getOutputStream().write(response.getBytes());
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
+        OperationType type = (OperationType) req.getAttribute("restOperationType");
+        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
+        Class clazz = (Class) req.getAttribute("restClazz");
 
-        OperationType type = evaluateRequest(pathInfo);
+        String response = "NOT PROCESSED - ERROR (doDelete)";
 
-        if (type == OperationType.INVALID_TYPE)
-            throw new ServletException("An Invalid OperationType was found");
-
-        if (type == OperationType.BAD_REQUEST) {
-            // return 400 Bad Request error, as the syntax is incorrect.
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            resp.flushBuffer();
-            return;
-
-        }
-
-        String resourceName = getResourceName(type, pathInfo);
-
-        if (resourceName == null || !registry.isRegisteredItemName(resourceName)) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            resp.flushBuffer();
-            return;
-        }
-        Matcher matcher;
-        Class clazz = registry.getRegisteredClass(resourceName);
-
-        String response = "NOT PROCESSED - ERROR";
         /*** everything the same until here **/
-
 
         switch (type) {
             case SPECIFIC_ID: {
-                // we are having a get request for a specific id
-                // do something with it.
-                matcher = specificId.matcher(pathInfo);
-                matcher.matches();
-                Long id = Long.parseLong(matcher.group(2));
-                response = invoker.handleDeleteOnObject(clazz, id, req.getHeader("Accept"));
+                Long id = (Long) req.getAttribute("restSpecificId");
+                try {
+                    response = invoker.handleDeleteOnObject(clazz, id, outputType);
+                } catch (RemotingError remotingError) {
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
             break;
             case SEARCH: {
@@ -348,30 +232,26 @@ public class RequestHandlerServlet extends HttpServlet {
             }
             break;
             case ONLY_RESOURCE:
-                response = invoker.handleDeleteOnResource(clazz, req.getHeader("Accept"));
+                try{
+                    response = invoker.handleDeleteOnResource(clazz, outputType);
+                    resp.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204
+                } catch (RemotingError e)
+                {
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
                 break;
         }
-        resp.getOutputStream().print(response);
-        resp.flushBuffer();
+        if("ERROR".equals(response))
+        {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        else
+        {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getOutputStream().write(response.getBytes());
+        }
     }
 
-    /**
-     * Called by the servlet container to indicate to a servlet that the
-     * servlet is being placed into service.  See {@link javax.servlet.Servlet#init}.
-     * <p/>
-     * <p>This implementation stores the {@link javax.servlet.ServletConfig}
-     * object it receives from the servlet container for later use.
-     * When overriding this form of the method, call
-     * <code>super.init(config)</code>.
-     *
-     * @param config the <code>ServletConfig</code> object
-     *               that contains configutation
-     *               information for this servlet
-     * @throws javax.servlet.ServletException if an exception occurs that
-     *                                        interrupts the servlet's normal
-     *                                        operation
-     * @see javax.servlet.UnavailableException
-     */
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
