@@ -131,15 +131,24 @@ public class Placement {
     @PrePersist
     public void prePersist() throws PersistenceException
     {
-        int thisAmount = this.amount * item.getSize(); // Platzbedarf dieses Placements
-        int allSpace = this.rack.getPlace(); // verfuegbarer Platz im Rack (insgesamt)
-        List<Placement> alreadyExisting = this.rack.getPlacements(); // bereits bestehende Placements
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("RestPersistenceUnit");
+        EntityManager em = emf.createEntityManager();
+
+        Item i = em.find(Item.class, item.getId());
+        Rack r = em.find(Rack.class, rack.getId());
+        if(i == null || r == null)
+            throw new PersistenceException("Entities not found");
+
+        int thisAmount = this.amount * i.getSize(); // Platzbedarf dieses Placements
+        int allSpace = r.getPlace(); // verfuegbarer Platz im Rack (insgesamt)
+        em.refresh(r);
+        List<Placement> alreadyExisting = r.getPlacements(); // bereits bestehende Placements
         int alreadyUsedAmount = 0; // bereits verbrauchter platz
         for(Placement p : alreadyExisting)
         {
             alreadyUsedAmount += p.getAmount()*p.getItem().getSize();
         }
-
+        em.close();
         if(alreadyUsedAmount + thisAmount > allSpace)
             throw new PersistenceException("Not enough space available");        
     }
