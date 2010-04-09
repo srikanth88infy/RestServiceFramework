@@ -36,7 +36,7 @@ public class Item {
     private Integer size;
 
     @OneToMany(mappedBy = "item")
-    private List<Placement> placements = new ArrayList<Placement>();
+    private List<Placement> placements;
 
     /**
      * generated methods *
@@ -49,12 +49,14 @@ public class Item {
         this.name = name;
         this.description = description;
         this.size = size;
+        placements = new ArrayList<Placement>();
     }
 
     public Item(String name, String description, Integer size) {
         this.name = name;
         this.description = description;
         this.size = size;
+        placements = new ArrayList<Placement>();
     }
 
     public Long getId() {

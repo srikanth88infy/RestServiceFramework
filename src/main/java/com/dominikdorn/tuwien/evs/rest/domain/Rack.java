@@ -3,6 +3,7 @@ package com.dominikdorn.tuwien.evs.rest.domain;
 import com.dominikdorn.rest.annotations.Restful;
 import com.dominikdorn.rest.annotations.Searchable;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,23 +33,26 @@ public class Rack {
     private int place;
 
     @OneToMany(mappedBy = "rack")
-    private List<Placement> placements = new ArrayList<Placement>();
+    private List<Placement> placements;
 
     /** generated methods **/
     public Rack() {
     }
+
 
     public Rack(long id, String name, String description, Integer place) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.place = place;
+        placements = new ArrayList<Placement>();
     }
 
     public Rack(String name, String description, Integer place) {
         this.name = name;
         this.description = description;
         this.place = place;
+        placements = new ArrayList<Placement>();
     }
 
     public long getId() {
