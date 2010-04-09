@@ -1,0 +1,1 @@
+../json/placement_deleteId.sh

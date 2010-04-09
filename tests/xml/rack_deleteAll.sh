@@ -1,0 +1,1 @@
+../json/rack_deleteAll.sh
