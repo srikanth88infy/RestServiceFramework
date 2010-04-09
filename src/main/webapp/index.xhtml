@@ -7,8 +7,75 @@
     <title></title>
 </head>
 <body>
-Restful WebServices
-(c) 2010 Dominik Dorn
-0626165
+<h1>Restful WebServices</h1>
+<div>
+    (c) 2010 Dominik Dorn
+    0626165
+</div>
+
+<form action="index.xhtml">
+
+    <label for="testData">TestData</label>
+    <textarea rows="5" cols="72" id="testData" name="testData"/>
+
+    <label for="uri">URL</label>
+    <input type="text" name="uri" id="uri"/>
+
+    <button>Get</button>
+    <button>Post</button>
+    <button>Put</button>
+    <button>Delete</button>
+
+</form>
+
+<ul>
+    <li>
+        <a href="api/items">
+            Get all Items
+        </a>
+    </li>
+    <li>
+        <a href="api/racks">
+            Get all Racks
+        </a>
+    </li>
+    <li>
+        <a href="api/placements">
+            Get all Placements
+        </a>
+    </li>
+    <li>
+        Create an Item
+        <form action="api/items" method="post">
+            <label for="post_item_name">Name</label> <input name="name" id="post_item_name"/>
+            <label for="post_item_description">Description</label> <input name="description" id="post_item_description"/>
+            <label for="post_item_size">Size</label> <input name="size" id="post_item_size"/>
+            <input type="submit"/>
+        </form>
+    </li>
+    <li>
+        Create a Rack
+        <form action="api/racks" method="post">
+            <label for="post_rack_name">Name</label> <input name="name" id="post_rack_name"/>
+            <label for="post_rack_description">Description</label> <input name="description" id="post_rack_description"/>
+            <label for="post_rack_place">Place</label> <input name="place" id="post_rack_place"/>
+            <input type="submit"/>
+        </form>
+    </li>
+    <li>
+        Create a Placement
+        <form action="api/placements" method="post">
+            <label for="post_placements_rack_id">Rack ID</label> <input name="rack_id" id="post_placements_rack_id"/>
+            <label for="post_placements_item_id">Item ID</label> <input name="rack_id" id="post_placements_item_id"/>
+            <label for="post_placements_amount">Amount</label> <input name="amount" id="post_placements_amount"/>
+            <label for="post_placements_storingPosition">Storing Possition</label> <input name="storingPosition" id="post_placements_storingPosition"/>
+            <input type="submit"/>
+        </form>
+    </li>
+
+</ul>
+
+
+
 </body>
 </html>
