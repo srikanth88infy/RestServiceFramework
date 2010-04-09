@@ -1,10 +1,5 @@
 package com.dominikdorn.rest.services;
 
-import com.dominikdorn.rest.dao.AbstractJpaDao;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,87 +8,89 @@ import java.util.Map;
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public class RestService {
+public interface RestService {
+    /**
+     * Returns a specific instance given by an Id.
+     * @param clazz
+     * @param id
+     * @return
+     * @throws RemotingError
+     */
+    Object handleGetById(Class clazz, Object id) throws RemotingError;
 
-    Map<Class, AbstractJpaDao> daoMap = new HashMap<Class, AbstractJpaDao>();
+    /**
+     * Returns all instances of an resource.
+     * @param clazz
+     * @return
+     * @throws RemotingError
+     */
+    List handleGetAll(Class clazz) throws RemotingError;
 
-    private EntityManagerFactory emf;
+    /**
+     * Searches for instances of a resource with the given attributes
+     * @param clazz
+     * @param attributes
+     * @return
+     * @throws RemotingError
+     */
+    List handleSearch(Class clazz, Map<String, String> attributes) throws RemotingError;
 
-    public RestService(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
+    /**
+     * Updates a given instance of a resource.
+     * @param clazz
+     * @param id
+     * @param o
+     * @return
+     * @throws RemotingError
+     */
+    Object handlePostOnObject(Class clazz, Object id, Object o) throws RemotingError;
 
+    /**
+     * Creates a new instance for the given resource and persists it.
+     * @param clazz
+     * @param o
+     * @return
+     * @throws RemotingError
+     */
+    Object handlePostOnResource(Class clazz, Object o) throws RemotingError;
 
-    public AbstractJpaDao getDao(Class clazz)
-    {
-        AbstractJpaDao dao;
-        if(!daoMap.containsKey(clazz))
-        {
-            dao = new AbstractJpaDao(clazz);
-            daoMap.put(clazz, dao);
-        }
-        dao =  daoMap.get(clazz);
-        EntityManager em = emf.createEntityManager();
+    /**
+     * Persists an instance of a resource with a specific Id. If an instance with this
+     * id already exists, update the instance.
+     * @param clazz
+     * @param id
+     * @param o
+     * @return
+     * @throws RemotingError
+     */
+    Object handlePutOnObject(Class clazz, Object id, Object o) throws RemotingError;
 
-        dao.setEm(em);
+    /**
+     * Updates a whole resource.
+     * @param clazz
+     * @param data
+     * @return
+     * @throws RemotingError
+     */
+    String handlePutOnResource(Class clazz, String data) throws RemotingError;
 
-        return dao;
-    }
-
-
-
-    public Object handleGetById(Class clazz, Object id, String mediaType)
-    {
-        return getDao(clazz).getById((Long) id);
-//        return "handleGetById(Class clazz, Object id, String mediaType)";
-    }
-
-    public List handleGetAll(Class clazz, String mediaType)
-    {
-        return getDao(clazz).getAll();
-//        return "    public String handleGetAll(Class clazz, String mediaType)";
-    }
-
-    public String handleSearch(Class clazz, Map<String,String> attributes, String mediaType)
-    {
-        return "    public String handleSearch(Class clazz, Map<String,String> attributes, String mediaType)";
-    }
-
-    // create with id
-    public String handlePostOnObject(Class clazz, Object id, Map<String,String> attributes, String mediaType)
-    {
-        return "    public String handlePostOnObject(Class clazz, Object id, Map<String,String> attributes, String mediaType)";
-    }
-
-    // create without id
-    public String handlePostOnResource(Class clazz, String data, String mediaType)
-    {
-        return "    public String handlePostOnResource(Class clazz, String data, String mediaType)";
-    }
-
-    // update with id
-    public String handlePutOnObject(Class clazz, Object id, Map<String,String> attributes, String mediaType)
-    {
-        return "    public String handlePutOnObject(Class clazz, Object id, Map<String,String> attributes, String mediaType)";
-    }
-
-    // replace collection
-    public String handlePutOnResource(Class clazz, String data, String mediaType)
-    {
-        return "    public String handlePutOnResource(Class clazz, String data, String mediaType)";
-    }
+    /**
+     * Deletes an Instance of a certain resource.
+     * Returns true on success, false otherwise
+     * @param clazz
+     * @param id
+     * @return
+     * @throws RemotingError
+     */
+    void handleDeleteOnObject(Class clazz, Object id) throws RemotingError;
 
 
-
-
-    public String handleDeleteOnObject(Class clazz, Object id, String mediaType)
-    {
-        return "";
-    }
-
-    public String handleDeleteOnResource(Class clazz, String mediaType)
-    {
-        return "";
-    }
-
+    /**
+     * Deletes a whole resource, meaning emptying a table.
+     * Returns the number of objects deleted.
+     * @param clazz
+     * @return
+     * @throws RemotingError
+     */
+    int handleDeleteOnResource(Class clazz) throws RemotingError;
 }
