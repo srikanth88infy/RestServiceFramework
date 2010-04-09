@@ -1,11 +1,10 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
-import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
-import com.dominikdorn.tuwien.evs.rest.annotations.Searchable;
+import com.dominikdorn.rest.annotations.Restful;
+import com.dominikdorn.rest.annotations.Searchable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
