@@ -3,6 +3,7 @@ package com.dominikdorn.tuwien.evs.rest.domain;
 import com.dominikdorn.rest.annotations.Restful;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Dominik Dorn
@@ -125,5 +126,21 @@ public class Placement {
         result = 31 * result + (item != null ? item.hashCode() : 0);
         result = 31 * result + (rack != null ? rack.hashCode() : 0);
         return result;
+    }
+
+    @PrePersist
+    public void prePersist() throws PersistenceException
+    {
+        int thisAmount = this.amount * item.getSize(); // Platzbedarf dieses Placements
+        int allSpace = this.rack.getPlace(); // verfuegbarer Platz im Rack (insgesamt)
+        List<Placement> alreadyExisting = this.rack.getPlacements(); // bereits bestehende Placements
+        int alreadyUsedAmount = 0; // bereits verbrauchter platz
+        for(Placement p : alreadyExisting)
+        {
+            alreadyUsedAmount += p.getAmount()*p.getItem().getSize();
+        }
+
+        if(alreadyUsedAmount + thisAmount > allSpace)
+            throw new PersistenceException("Not enough space available");        
     }
 }
