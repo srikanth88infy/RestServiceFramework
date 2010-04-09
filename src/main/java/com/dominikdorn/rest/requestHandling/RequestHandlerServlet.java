@@ -1,10 +1,10 @@
 package com.dominikdorn.rest.requestHandling;
 
 import com.dominikdorn.rest.invoking.Invoker;
-import com.dominikdorn.rest.services.EncodingNegotiator;
 import com.dominikdorn.rest.services.ObjectRegistry;
 import com.dominikdorn.rest.services.OutputType;
 import com.dominikdorn.rest.services.RemotingError;
+import com.dominikdorn.rest.services.UnsupportedOperationRemotingError;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Dominik Dorn
@@ -64,6 +62,101 @@ public class RequestHandlerServlet extends HttpServlet {
                 }
             }
             break;
+            case ONLY_RESOURCE:
+                try {
+                    response = invoker.handleGetAll(clazz, outputType);
+                } catch (RemotingError remotingError) {
+                    remotingError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+                break;
+        }
+        if("ERROR".equals(response))
+        {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        else
+        {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getOutputStream().write(response.getBytes());
+        }
+
+    }
+
+
+    @Override
+    // OPERATION: UPDATE
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        OperationType type = (OperationType) req.getAttribute("restOperationType");
+        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
+        Class clazz = (Class) req.getAttribute("restClazz");
+
+        String response = "NOT PROCESSED - ERROR (doPut)";
+
+        /*** everything the same until here **/
+
+
+        switch (type) {
+            case SPECIFIC_ID: {
+                // we are having a get request for a specific id
+                // do something with it.
+                Long id = (Long) req.getAttribute("restSpecificId");
+                try {
+                    response = invoker.handlePutOnObject(clazz, id, req.getParameterMap(), outputType);
+                } catch (RemotingError remotingError) {
+                    remotingError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+            break;
+
+            case ONLY_RESOURCE:
+                try {
+                    response = invoker.handlePutOnResource(clazz, req.getQueryString(), outputType);
+                }
+                catch (UnsupportedOperationRemotingError re)
+                {
+                    resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                }
+                catch (RemotingError remotingError) {
+                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+                break;
+        }
+        if("ERROR".equals(response))
+        {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        else
+        {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getOutputStream().write(response.getBytes());
+        }
+    }
+
+
+    @Override
+    // OPERATION CREATE
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        OperationType type = (OperationType) req.getAttribute("restOperationType");
+        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
+        Class clazz = (Class) req.getAttribute("restClazz");
+
+        String response = "NOT PROCESSED - ERROR (doPost)";
+
+        /*** everything the same until here **/
+
+
+        switch (type) {
+            case SPECIFIC_ID: {
+                // we are having a get request for a specific id
+                // do something with it.
+                Long id = (Long) req.getAttribute("restSpecificId");
+                try {
+                    response = invoker.handlePostOnObject(clazz, id, req.getParameterMap(), outputType);
+                } catch (RemotingError remotingError) {
+                    resp.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
+                }
+            }
+            break;
             case SEARCH: {
                 Map<String, String> searchParams = new HashMap<String, String>();
                 Set<String> searchableFields = registry.getSearchableFields(clazz);
@@ -91,101 +184,6 @@ public class RequestHandlerServlet extends HttpServlet {
                         }
                     }
                 }
-            }
-            break;
-            case ONLY_RESOURCE:
-                try {
-                    response = invoker.handleGetAll(clazz, outputType);
-                } catch (RemotingError remotingError) {
-                    remotingError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-                break;
-        }
-        if("ERROR".equals(response))
-        {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-        else
-        {
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getOutputStream().write(response.getBytes());
-        }
-
-    }
-
-
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        OperationType type = (OperationType) req.getAttribute("restOperationType");
-        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
-        Class clazz = (Class) req.getAttribute("restClazz");
-
-        String response = "NOT PROCESSED - ERROR (doPut)";
-
-        /*** everything the same until here **/
-
-
-        switch (type) {
-            case SPECIFIC_ID: {
-                // we are having a get request for a specific id
-                // do something with it.
-                Long id = (Long) req.getAttribute("restSpecificId");
-                try {
-                    response = invoker.handlePutOnObject(clazz, id, req.getParameterMap(), outputType);
-                } catch (RemotingError remotingError) {
-                    remotingError.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
-            break;
-            case SEARCH: {
-                // NOT TO BE IMPLEMENTED
-            }
-            break;
-            case ONLY_RESOURCE:
-                try {
-                    response = invoker.handlePutOnResource(clazz, req.getQueryString(), outputType);
-                } catch (RemotingError remotingError) {
-                    resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                }
-                break;
-        }
-        if("ERROR".equals(response))
-        {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-        else
-        {
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getOutputStream().write(response.getBytes());
-        }
-    }
-
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        OperationType type = (OperationType) req.getAttribute("restOperationType");
-        OutputType outputType = (OutputType) req.getAttribute("restOutputType");
-        Class clazz = (Class) req.getAttribute("restClazz");
-
-        String response = "NOT PROCESSED - ERROR (doDelete)";
-
-        /*** everything the same until here **/
-
-
-        switch (type) {
-            case SPECIFIC_ID: {
-                // we are having a get request for a specific id
-                // do something with it.
-                Long id = (Long) req.getAttribute("restSpecificId");
-                try {
-                    response = invoker.handlePostOnObject(clazz, id, req.getParameterMap(), outputType);
-                } catch (RemotingError remotingError) {
-                    resp.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
-                }
-            }
-            break;
-            case SEARCH: {
-                // NOT TO BE IMPLEMENTED
             }
             break;
             case ONLY_RESOURCE:
@@ -221,7 +219,8 @@ public class RequestHandlerServlet extends HttpServlet {
             case SPECIFIC_ID: {
                 Long id = (Long) req.getAttribute("restSpecificId");
                 try {
-                    response = invoker.handleDeleteOnObject(clazz, id, outputType);
+                    invoker.handleDeleteOnObject(clazz, id, outputType);
+                    resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 } catch (RemotingError remotingError) {
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 }
