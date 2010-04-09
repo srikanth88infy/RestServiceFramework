@@ -7,7 +7,7 @@ import com.dominikdorn.rest.services.RemotingError;
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public abstract class MarshallingStrategy {
-    public abstract Object deSerialize(String data, Class clazz) throws RemotingError;
-    public abstract String serialize(Object object, Class clazz) throws RemotingError;
+public interface MarshallingStrategy {
+    public Object deSerialize(String data, Class clazz) throws RemotingError;
+    public String serialize(Object object, Class clazz) throws RemotingError;
 }

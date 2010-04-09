@@ -8,7 +8,7 @@ import com.skaringa.javaxml.*;
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public class XmlMarshallingStrategy extends MarshallingStrategy {
+public class XmlMarshallingStrategy implements MarshallingStrategy {
     @Override
     public Object deSerialize(String data, Class clazz) throws RemotingError {
         try {
