@@ -84,26 +84,11 @@ public class InvokerImpl implements Invoker {
     @Override
     public String handlePostOnObject(Class clazz, Object id, Map<String, String> attributes, OutputType mediaType) throws RemotingError {
         Object o = null;
-        if (OutputType.XHTML.equals(mediaType)) {
-            o = converterService.getConverter(clazz).getObject(attributes);
-        } else if (OutputType.JSON.equals(mediaType) || OutputType.XML.equals(mediaType)) {
-            String result = "";
-            for (Map.Entry<String, String> e : attributes.entrySet()) {
-                if (!e.getKey().isEmpty()) {
-                    result = e.getKey();
-                    break;
-                }
-            }
-
-            o = marshaller.deSerialize(result, clazz, mediaType);
-        }
-
+        o = extractInput(clazz, attributes, mediaType);
 
         try {
-            for(Method m : clazz.getMethods())
-            {
-                if(m.getName().indexOf("setId") > -1)
-                {
+            for (Method m : clazz.getMethods()) {
+                if (m.getName().indexOf("setId") > -1) {
                     m.invoke(o, id);
                     break;
                 }
@@ -124,6 +109,14 @@ public class InvokerImpl implements Invoker {
 
 
         Object o = null;
+        o = extractInput(clazz, data, mediaType);
+
+
+        return marshaller.serialize(service.handlePostOnResource(clazz, o), clazz, mediaType);
+    }
+
+    private Object extractInput(Class clazz, Map<String,String> data, OutputType mediaType){
+        Object o = null;
         if (OutputType.XHTML.equals(mediaType)) {
             try {
                 o = clazz.newInstance();
@@ -142,7 +135,7 @@ public class InvokerImpl implements Invoker {
                 }
             }
 
-        } else if (OutputType.JSON.equals(mediaType) || OutputType.XML.equals(mediaType)) {
+        } else if (OutputType.JSON.equals(mediaType)) {
             String result = "";
             for (Map.Entry<String, String> e : data.entrySet()) {
                 if (!e.getKey().isEmpty()) {
@@ -153,35 +146,37 @@ public class InvokerImpl implements Invoker {
 
             o = marshaller.deSerialize(result, clazz, mediaType);
 
-        }
+        } else if (OutputType.XML.equals(mediaType)) {
+            String result = "";
+            for (Map.Entry<String, String> e : data.entrySet()) {
+                if (!e.getKey().isEmpty()) {
+                    result = e.getKey() + "=" ;
+                    Object val = e.getValue();
+                    String[] values = (String[]) val;
+                    for(String s : values)
+                    {
+                        result = result + s;
+                    }
+                    break;
+                }
+            }
 
-        return marshaller.serialize(service.handlePostOnResource(clazz, o), clazz, mediaType);
+            o = marshaller.deSerialize(result, clazz, mediaType);
+
+        }
+        return o;
     }
 
     @Override
     public String handlePutOnObject(Class clazz, Object id, Map<String, String> attributes, OutputType mediaType) throws RemotingError {
 
         Object o = null;
-        if (OutputType.XHTML.equals(mediaType)) {
-            o = converterService.getConverter(clazz).getObject(attributes);
-        } else if (OutputType.JSON.equals(mediaType) || OutputType.XML.equals(mediaType)) {
-            String result = "";
-            for (Map.Entry<String, String> e : attributes.entrySet()) {
-                if (!e.getKey().isEmpty()) {
-                    result = e.getKey();
-                    break;
-                }
-            }
-
-            o = marshaller.deSerialize(result, clazz, mediaType);
-        }
+        o = extractInput(clazz, attributes, mediaType);
 
 
         try {
-            for(Method m : clazz.getMethods())
-            {
-                if(m.getName().indexOf("setId") > -1)
-                {
+            for (Method m : clazz.getMethods()) {
+                if (m.getName().indexOf("setId") > -1) {
                     m.invoke(o, id);
                     break;
                 }
@@ -190,7 +185,7 @@ public class InvokerImpl implements Invoker {
             throw new ObjectPropertyRemotingError();
         } catch (InvocationTargetException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }                 
+        }
         return marshaller.serialize(service.handlePutOnObject(clazz, id, o), clazz, mediaType);
     }
 
