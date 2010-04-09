@@ -1,4 +1,4 @@
-package com.dominikdorn.tuwien.evs.rest.annotations;
+package com.dominikdorn.rest.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
  * dominik.dorn@tuwien.ac.at
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Get {
+@Target(ElementType.FIELD)
+public @interface Searchable {
 }
