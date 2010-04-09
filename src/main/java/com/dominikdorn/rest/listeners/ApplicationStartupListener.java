@@ -1,14 +1,15 @@
 package com.dominikdorn.rest.listeners;
 
+import com.dominikdorn.rest.converter.Converter;
+import com.dominikdorn.rest.converter.ConverterService;
+import com.dominikdorn.rest.interceptors.LoggingInterceptor;
 import com.dominikdorn.rest.invoking.Invoker;
+import com.dominikdorn.rest.invoking.InvokerImpl;
 import com.dominikdorn.rest.marshalling.JsonMarshallingStrategy;
 import com.dominikdorn.rest.marshalling.Marshaller;
 import com.dominikdorn.rest.marshalling.MarshallingStrategy;
 import com.dominikdorn.rest.marshalling.XmlMarshallingStrategy;
-import com.dominikdorn.rest.services.AnnotationScanner;
-import com.dominikdorn.rest.services.ObjectRegistry;
-import com.dominikdorn.rest.services.OutputType;
-import com.dominikdorn.rest.services.RestService;
+import com.dominikdorn.rest.services.*;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -40,9 +41,13 @@ public class ApplicationStartupListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         AnnotationScanner scanner = new AnnotationScanner();
+        scanner.initialize(getWebInfClassesURL(sce.getServletContext()));
+
         ObjectRegistry registry = new ObjectRegistry();
 
-        Map<String, Class> objectDatabase = scanner.getRegisteredObjectMap(getWebInfClassesURL(sce.getServletContext()));
+        ConverterService converterService = new ConverterService();
+
+        Map<String, Class> objectDatabase = scanner.getRegisteredObjectMap();
         registry.setObjectDatabase(objectDatabase);
         for(Class clazz : objectDatabase.values())
         {
@@ -50,6 +55,12 @@ public class ApplicationStartupListener implements ServletContextListener {
             {
                 registry.addSearchableField(clazz, field);
             }
+        }
+
+        Map<Class, Converter> converters = scanner.getConverters();
+        for(Map.Entry<Class,Converter> e : converters.entrySet())
+        {
+            converterService.registerConverter(e.getKey(), e.getValue());
         }
 
         // creating marshalling-strategies
@@ -66,15 +77,20 @@ public class ApplicationStartupListener implements ServletContextListener {
         // creating marshaller
         Marshaller marshaller = new Marshaller(strategies, OutputType.JSON);
 
-        RestService service = new RestService(emf);
+        RestService serviceImpl = new RestServiceImpl(emf);
+        RestService service = (RestService) LoggingInterceptor.getProxy( serviceImpl );
 
 
-        Invoker invoker = new Invoker(marshaller, service);
+        Invoker invokerImpl = new InvokerImpl(marshaller, service, converterService);
+        Invoker invoker = (Invoker) LoggingInterceptor.getProxy(invokerImpl);
+
+        EncodingNegotiator negotiator = new EncodingNegotiator();
 
 
         // registers the registry & the invoker in application scope
         sce.getServletContext().setAttribute("restObjectRegistry", registry);
         sce.getServletContext().setAttribute("restInvoker", invoker);
+        sce.getServletContext().setAttribute("restEncodingNegotiator", negotiator);
     }
 
     public URL getWebInfClassesURL(ServletContext context) {
