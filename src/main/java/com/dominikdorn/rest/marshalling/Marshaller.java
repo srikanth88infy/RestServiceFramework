@@ -20,19 +20,19 @@ public class Marshaller {
         this.defaultOutputType = defaultOutputType;
     }
 
-    public String serialize(Object obj, OutputType type) throws RemotingError {
+    public String serialize(Object obj, Class clazz, OutputType type) throws RemotingError {
         if(strategies.containsKey(type))
         {
-            return strategies.get(type).serialize(obj, null);
+            return strategies.get(type).serialize(obj, clazz);
         }
         throw new RemotingError(1,"No MarshallingStrategy for requested OutputType found"); // TODO marshall this with default output type
     }
 
-    public Object deSerialize(String data, OutputType type) throws RemotingError
+    public Object deSerialize(String data, Class clazz, OutputType type) throws RemotingError
     {
         if(strategies.containsKey(type))
         {
-            return strategies.get(type).deSerialize(data, null);
+            return strategies.get(type).deSerialize(data, clazz);
         }
         throw new RemotingError(1,"No MarshallingStrategy for requested OutputType found"); // TODO marshall this with default output type
     }
