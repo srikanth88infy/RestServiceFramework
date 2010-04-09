@@ -3,16 +3,22 @@ package com.dominikdorn.rest.dao;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Root;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dominik Dorn
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public class AbstractJpaDao<TYPE> {
+public class AbstractJpaDao<TYPE> implements GenericJpaDao<TYPE> {
     @PersistenceContext
     protected EntityManager em;
 
@@ -31,8 +37,7 @@ public class AbstractJpaDao<TYPE> {
         this.entityClass = (Class<TYPE>) genericSuperclass.getActualTypeArguments()[0];
     }
 
-    public AbstractJpaDao(Class clazz)
-    {
+    public AbstractJpaDao(Class clazz) {
         this.entityClass = clazz;
     }
 
@@ -46,6 +51,7 @@ public class AbstractJpaDao<TYPE> {
     }
 
 
+    @Override
     public TYPE persist(TYPE item) {
         if (item == null)
             throw new PersistenceException("Item may not be null");
@@ -53,6 +59,7 @@ public class AbstractJpaDao<TYPE> {
         return item;
     }
 
+    @Override
     public TYPE update(TYPE item) {
         if (item == null)
             throw new PersistenceException("Item may not be null");
@@ -61,12 +68,14 @@ public class AbstractJpaDao<TYPE> {
         return item;
     }
 
+    @Override
     public List<TYPE> getAll() {
         CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
         cq.select(cq.from(entityClass));
-        return em.createQuery(cq).getResultList();       
+        return em.createQuery(cq).getResultList();
     }
 
+    @Override
     public TYPE getById(Long id) {
         if (id == null || id < 1)
             throw new PersistenceException("Id may not be null or negative");
@@ -74,10 +83,36 @@ public class AbstractJpaDao<TYPE> {
         return (TYPE) em.find(entityClass, id);
     }
 
+    @Override
     public void delete(TYPE item) {
         if (item == null)
             throw new PersistenceException("Item may not be null");
 
         em.remove(em.merge(item));
+    }
+
+    @Override
+    public List<TYPE> findByAttributes(Map<String, String> attributes) {
+        List<TYPE> results;
+        //set up the Criteria query
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<TYPE> cq = cb.createQuery(getEntityClass());
+        Root<TYPE> foo = cq.from(getEntityClass());
+
+        // loop through the list of parameters
+        Set<ParameterExpression<?>> params = cq.getParameters();
+
+        for (ParameterExpression<?> e : params) {
+            if (attributes.containsKey(e.getName())) {
+                cq.where(cb.equal(e, attributes.get(e.getName())));
+            }
+        }
+
+        // finish and execute the query
+        cq.select(foo);
+        TypedQuery<TYPE> q = em.createQuery(cq);
+        results = q.getResultList();
+        return results;
+
     }
 }
