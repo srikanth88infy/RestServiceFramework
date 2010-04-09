@@ -1,7 +1,5 @@
 package com.dominikdorn.rest.services;
 
-import com.dominikdorn.rest.services.OutputType;
-
 /**
  * Dominik Dorn
  * 0626165
