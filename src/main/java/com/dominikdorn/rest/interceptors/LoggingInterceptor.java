@@ -1,6 +1,7 @@
 package com.dominikdorn.rest.interceptors;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Date;
@@ -25,16 +26,37 @@ public class LoggingInterceptor implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        Date before, after;
+        try {
+            Date before, after;
 
-        System.out.println("===============================");
-        System.out.println(realObject.getClass().getCanonicalName()+"#"+method.getName() + "(" + ((objects == null) ? "null" : objects.toString()) + ")"  + ": entered ");
-        before = new Date();
-        Object result = method.invoke(realObject, objects);
-        after = new Date();
-        long executionTime = after.getTime() - before.getTime();
-        System.out.println(realObject.getClass().getCanonicalName()+"#"+method.getName() + "(" + ((objects == null) ? "null" : objects.toString()) + ")"  + ": returned (" + executionTime +" ms)");
-        System.out.println("===============================");
-        return result;
+            System.out.println("===============================");
+            System.out.println(realObject.getClass().getCanonicalName() + "#" + method.getName() + "(" + ((objects == null) ? "null" : objects.toString()) + ")" + ": entered ");
+            before = new Date();
+            Object result = method.invoke(realObject, objects);
+            after = new Date();
+            long executionTime = after.getTime() - before.getTime();
+            System.out.println(realObject.getClass().getCanonicalName() + "#" + method.getName() + "(" + ((objects == null) ? "null" : objects.toString()) + ")" + ": returned (" + executionTime + " ms)");
+            System.out.println("===============================");
+            return result;
+        }
+        catch (IllegalArgumentException iae)
+        {
+            throw iae.getCause();
+        }
+        catch (InvocationTargetException ite)
+        {
+            throw ite.getTargetException();
+        }
+        catch(RuntimeException re)
+        {
+            throw re;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+        catch (Throwable t) {
+            throw t;
+        }
     }
 }
