@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.6.2 or above.        -->
+<!-- ====================================================================== -->
+
+<project name="rest" default="package" basedir=".">
+    <property environment="env"/>
+
+    <property name="JETTY_HOME" value="${env.JETTY_HOME}"/>
+  <!-- ====================================================================== -->
+  <!-- Import maven-build.xml into the current project                        -->
+  <!-- ====================================================================== -->
+
+  <import file="maven-build.xml"/>
+  
+  <!-- ====================================================================== -->
+  <!-- Help target                                                            -->
+  <!-- ====================================================================== -->
+
+  <target name="help">
+    <echo message="Please run: $ant -projecthelp"/>
+  </target>
+
+  <target name="jetty-deploy" depends="compile">
+	  <copy toDir="${JETTY_HOME}/webapps/" file="${basedir}/target/rest-1.0.war"/>
+  </target>
+</project>
