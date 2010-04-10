@@ -7,6 +7,7 @@
     <groupId>com.dominikdorn.tuwien.evs.rest</groupId>
     <artifactId>rest</artifactId>
     <version>1.0</version>
+    <packaging>war</packaging>
 
     <dependencies>
         <dependency>
@@ -27,11 +28,43 @@
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>7.0.1.v20091125</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.scannotation</groupId>
+            <artifactId>scannotation</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>skaringa</groupId>
+            <artifactId>skaringa</artifactId>
+            <version>r4p0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -44,6 +77,7 @@
     </repositories>
 
     <properties>
+        <junit-version>4.8.1</junit-version>
         <org.eclipse.persistence.eclipselink-version>2.0.0</org.eclipse.persistence.eclipselink-version>
         <org.eclipse.persistence.javax.persistence-version>2.0.0</org.eclipse.persistence.javax.persistence-version>
         <postgresql-jdbc-version>8.3-603.jdbc4</postgresql-jdbc-version>
