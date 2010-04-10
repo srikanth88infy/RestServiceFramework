@@ -1,10 +1,13 @@
 package com.dominikdorn.interceptors;
 
+import org.junit.Ignore;
+
 /**
  * Dominik Dorn
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
+@Ignore
 public class TestClassImpl implements TestClass {
 
     @Override
