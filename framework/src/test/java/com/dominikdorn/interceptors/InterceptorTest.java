@@ -1,6 +1,6 @@
 package com.dominikdorn.interceptors;
 
-import com.dominikdorn.tuwien.evs.rest.interceptors.LoggingInterceptor;
+import com.dominikdorn.rest.interceptors.LoggingInterceptor;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
