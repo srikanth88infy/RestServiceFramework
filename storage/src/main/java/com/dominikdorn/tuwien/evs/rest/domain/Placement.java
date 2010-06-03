@@ -1,6 +1,6 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
-import com.dominikdorn.tuwien.evs.rest.annotations.Restful;
+import com.dominikdorn.rest.annotations.Restful;
 
 import javax.persistence.*;
 import java.util.List;

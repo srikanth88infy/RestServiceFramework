@@ -1,5 +1,7 @@
 package com.dominikdorn.tuwien.evs.rest.marshalling;
 
+import com.dominikdorn.rest.marshalling.JsonMarshallingStrategy;
+
 /**
  * Dominik Dorn
  * 0626165

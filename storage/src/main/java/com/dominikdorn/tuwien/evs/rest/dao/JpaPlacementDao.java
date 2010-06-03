@@ -1,6 +1,6 @@
 package com.dominikdorn.tuwien.evs.rest.dao;
 
-import com.dominikdorn.tuwien.evs.rest.dao.AbstractJpaDao;
+import com.dominikdorn.rest.dao.AbstractJpaDao;
 import com.dominikdorn.tuwien.evs.rest.domain.Placement;
 
 /**

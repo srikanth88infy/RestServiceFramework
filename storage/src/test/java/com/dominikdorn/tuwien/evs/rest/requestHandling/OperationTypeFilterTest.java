@@ -1,5 +1,7 @@
 package com.dominikdorn.tuwien.evs.rest.requestHandling;
 
+import com.dominikdorn.rest.requestHandling.OperationType;
+import com.dominikdorn.rest.requestHandling.OperationTypeFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

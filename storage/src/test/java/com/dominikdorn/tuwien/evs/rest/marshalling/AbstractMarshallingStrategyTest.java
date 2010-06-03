@@ -1,5 +1,6 @@
 package com.dominikdorn.tuwien.evs.rest.marshalling;
 
+import com.dominikdorn.rest.marshalling.MarshallingStrategy;
 import com.dominikdorn.tuwien.evs.rest.domain.Item;
 import com.dominikdorn.tuwien.evs.rest.domain.Placement;
 import com.dominikdorn.tuwien.evs.rest.domain.Rack;
