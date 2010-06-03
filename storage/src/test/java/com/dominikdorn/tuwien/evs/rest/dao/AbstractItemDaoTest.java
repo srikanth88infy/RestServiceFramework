@@ -1,10 +1,8 @@
 package com.dominikdorn.tuwien.evs.rest.dao;
 
 import com.dominikdorn.tuwien.evs.rest.domain.Item;
-import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 
 import java.util.List;
