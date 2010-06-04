@@ -32,6 +32,9 @@
     <listener>
         <listener-class>com.dominikdorn.rest.listeners.ApplicationStartupListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>com.dominikdorn.tuwien.evs.rest.listener.RegisterOnLocationIndexListener</listener-class>
+    </listener>
 
     <servlet>
         <servlet-name>RestRequestHandlerServlet</servlet-name>
