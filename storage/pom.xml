@@ -29,12 +29,12 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <configuration>
                     <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <stopKey>foo</stopKey>
-                    <stopPort>9999</stopPort>
+                    <!--<stopKey>foo</stopKey>-->
+                    <!--<stopPort>9999</stopPort>-->
                     <connectors>
                         <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <host>${storage.host}</host>
-                            <port>8080</port>
+                            <port>${storage.port}</port>
                         </connector>
                     </connectors>
                 </configuration>
