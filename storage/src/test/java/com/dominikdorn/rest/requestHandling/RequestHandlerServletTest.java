@@ -1,7 +1,7 @@
 package com.dominikdorn.rest.requestHandling;
 
 import com.dominikdorn.rest.invoking.Invoker;
-import com.dominikdorn.rest.requestHandling.RequestHandlerServlet;
+import com.dominikdorn.rest.servlets.RequestHandlerServlet;
 import com.dominikdorn.rest.services.ObjectRegistry;
 import com.dominikdorn.rest.services.OutputType;
 import com.dominikdorn.rest.services.RemotingError;

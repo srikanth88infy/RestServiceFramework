@@ -39,7 +39,7 @@
     <servlet>
         <servlet-name>RestRequestHandlerServlet</servlet-name>
         <description>The Rest-Service Servlet</description>
-        <servlet-class>com.dominikdorn.rest.requestHandling.RequestHandlerServlet</servlet-class>
+        <servlet-class>com.dominikdorn.rest.servlets.RequestHandlerServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
