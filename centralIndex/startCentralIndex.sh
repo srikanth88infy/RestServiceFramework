@@ -1,0 +1,19 @@
+#! /bin/bash
+
+source ../config.sh
+
+
+ARGC=$#
+ARGV=$@
+
+
+if [ $ARGC != 0 ]; then
+  echo "Usage: ./startCentralIndex.sh"
+  echo "Example: ./startCentralIndex.sh"
+  exit 2;
+fi
+
+NETWORK=$METASERVICE_NW
+
+echo MAVEN_OPTS=\"-Xms$META_SERVICE_CENTRAL_INDEX_XMS -Xmx$META_SERVICE_CENTRAL_INDEX_XMX -XX:PermSize=$META_SERVICE_CENTRAL_INDEX_PERM\" mvn jetty:run-exploded -DcentralIndex.host=$PRIVATE_NW_PREFIX.$NETWORK.$LOCATION_SERVER_IP -DcentralIndex.port=$LOCATION_INDEX_DEFAULT_PORT -Dgateway.host=$PRIVATE_NW_PREFIX.$NETWORK.$GATEWAY_IP -Dgateway.port=$GATEWAY_INTERNAL_DEFAULT_PORT
+MAVEN_OPTS="-Xms$META_SERVICE_CENTRAL_INDEX_XMS -Xmx$META_SERVICE_CENTRAL_INDEX_XMX -XX:PermSize=$META_SERVICE_CENTRAL_INDEX_PERM" mvn jetty:run-exploded -DcentralIndex.host=$PRIVATE_NW_PREFIX.$NETWORK.$LOCATION_SERVER_IP -DcentralIndex.port=$LOCATION_INDEX_DEFAULT_PORT -Dgateway.host=$PRIVATE_NW_PREFIX.$NETWORK.$GATEWAY_IP -Dgateway.port=$GATEWAY_INTERNAL_DEFAULT_PORT

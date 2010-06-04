@@ -1,4 +1,4 @@
-package com.dominikdorn.rest.locationIndex.listeners;
+package com.dominikdorn.rest.metaService.centralIndex.listeners;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -8,7 +8,7 @@ import javax.servlet.ServletContextListener;
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public class RegisterOnGatewayListener implements ServletContextListener{
+public class RegisterOnMetaServiceGatewayListener implements ServletContextListener{
     String ownAddress;
     String ownPort;
     String gatewayAddress;
@@ -19,19 +19,19 @@ public class RegisterOnGatewayListener implements ServletContextListener{
     public void contextInitialized(ServletContextEvent sce) {
 
 
-        ownAddress = (String) System.getProperties().get("locationIndex.host");
+        ownAddress = (String) System.getProperties().get("centralIndex.host");
 
-        ownPort = (String) System.getProperties().get("locationIndex.port");
+        ownPort = (String) System.getProperties().get("centralIndex.port");
 
         gatewayAddress = (String) System.getProperties().get("gateway.host");
 
         gatewayPort = (String) System.getProperties().get("gateway.port");
 
         if(ownAddress == null)
-            throw new RuntimeException("required System-Property locationIndex.host not defined");
+            throw new RuntimeException("required System-Property centralIndex.host not defined");
 
         if(ownPort == null)
-            throw new RuntimeException("required System-Property locationIndex.port not defined");
+            throw new RuntimeException("required System-Property centralIndex.port not defined");
 
         if(gatewayAddress == null)
             throw new RuntimeException("required System-Property gateway.host not defined");
