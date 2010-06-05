@@ -1,7 +1,24 @@
 package com.dominikdorn.tuwien.evs.rest.listener;
 
+import com.dominikdorn.rest.registration.RegisteringException;
+import com.dominikdorn.rest.registration.RegistrationService;
+import com.dominikdorn.rest.registration.RegistrationServiceImpl;
+import com.dominikdorn.rest.registration.RegistrationThread;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dominik Dorn
@@ -18,13 +35,9 @@ public class RegisterOnLocationIndexListener implements ServletContextListener{
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-
         ownAddress = (String) System.getProperties().get("storage.host");
-
         ownPort = (String) System.getProperties().get("storage.port");
-
         locationIndexAddress = (String) System.getProperties().get("locationIndex.host");
-
         locationIndexPort = (String) System.getProperties().get("locationIndex.port");
 
         if(ownAddress == null)
@@ -45,14 +58,13 @@ public class RegisterOnLocationIndexListener implements ServletContextListener{
         System.out.println("locationIndexAddress = " + locationIndexAddress);
         System.out.println("locationIndexPort = " + locationIndexPort);
 
-
-        // TODO Spawn thread, connecting to localIndexAddress:localIndexPort for registration
-
+        RegistrationThread thread = new RegistrationThread(2000, -1, locationIndexAddress, locationIndexPort, ownAddress, ownPort);
+        thread.start();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        //To change body of implemented methods use File | Settings | File Templates.
-        // TODO connect to localIndexAddress:localIndexPort and unregister
+        RegistrationService service = new RegistrationServiceImpl();
+        service.unRegisterOnParent(locationIndexAddress, locationIndexPort, ownAddress, ownPort);
     }
 }
