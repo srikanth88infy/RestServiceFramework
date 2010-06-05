@@ -1,5 +1,8 @@
 package com.dominikdorn.rest.servlets;
 
+import com.dominikdorn.rest.registration.ClientRegistry;
+
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +16,7 @@ import java.io.IOException;
  */
 public class RegisterServlet extends HttpServlet {
 
+    private ClientRegistry registry;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -33,9 +37,29 @@ public class RegisterServlet extends HttpServlet {
         System.out.println("realPort = " + realPort);
         System.out.println("======================================");
 
-        
-        resp.setStatus(200);
-        resp.getOutputStream().print("OK");
-        resp.getOutputStream().close();
+
+        try {
+            registry.addClient(childHost, childPort);
+            resp.setStatus(200);
+            resp.getOutputStream().print("OK");
+            resp.getOutputStream().close();
+        }
+        catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getOutputStream().print("FAILED to add your client to our database. Please see Server logs");
+            resp.getOutputStream().close();
+            e.printStackTrace();
+        }
+
+
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+
+        registry = (ClientRegistry) config.getServletContext().getAttribute("clientRegistry");
+        if (registry == null)
+            throw new ServletException("ClientRegistry not initialized");
     }
 }
