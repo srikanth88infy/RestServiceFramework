@@ -28,12 +28,13 @@ public class GetClientsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doGet(req, resp);
 
         try{
         List<String> clients = registry.getClients();
 
         OutputType type = negotiator.detect(req.getContentType());
+            if(type.equals(OutputType.UNSUPPORTED))
+                type = OutputType.JSON;
         String result = marshaller.serialize(clients, java.util.List.class, type);
 
         resp.setStatus(200);
@@ -45,6 +46,7 @@ public class GetClientsServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getOutputStream().print("An error has occured, please see the servers log files");
             resp.getOutputStream().close();
+            e.printStackTrace();
         }
     }
 
@@ -65,7 +67,7 @@ public class GetClientsServlet extends HttpServlet {
         this.negotiator = (EncodingNegotiator) config.getServletContext().getAttribute("restEncodingNegotiator");
 
         if(negotiator == null)
-            throw new ServletException("The EncodingNegotiator is null. Please make sure, that the EncodingNegotiatorListener is loaded. ");       
+            throw new ServletException("The EncodingNegotiator is null. Please make sure, that the EncodingNegotiatorListener is loaded. ");
     }
 
     @Override
