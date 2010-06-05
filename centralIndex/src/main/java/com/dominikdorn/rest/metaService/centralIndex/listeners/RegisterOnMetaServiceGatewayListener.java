@@ -1,5 +1,9 @@
 package com.dominikdorn.rest.metaService.centralIndex.listeners;
 
+import com.dominikdorn.rest.registration.RegistrationService;
+import com.dominikdorn.rest.registration.RegistrationServiceImpl;
+import com.dominikdorn.rest.registration.RegistrationThread;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -11,8 +15,8 @@ import javax.servlet.ServletContextListener;
 public class RegisterOnMetaServiceGatewayListener implements ServletContextListener{
     String ownAddress;
     String ownPort;
-    String gatewayAddress;
-    String gatewayPort;
+    String parentAddress;
+    String parentPort;
 
 
     @Override
@@ -23,9 +27,9 @@ public class RegisterOnMetaServiceGatewayListener implements ServletContextListe
 
         ownPort = (String) System.getProperties().get("centralIndex.port");
 
-        gatewayAddress = (String) System.getProperties().get("gateway.host");
+        parentAddress = (String) System.getProperties().get("gateway.host");
 
-        gatewayPort = (String) System.getProperties().get("gateway.port");
+        parentPort = (String) System.getProperties().get("gateway.port");
 
         if(ownAddress == null)
             throw new RuntimeException("required System-Property centralIndex.host not defined");
@@ -33,26 +37,26 @@ public class RegisterOnMetaServiceGatewayListener implements ServletContextListe
         if(ownPort == null)
             throw new RuntimeException("required System-Property centralIndex.port not defined");
 
-        if(gatewayAddress == null)
+        if(parentAddress == null)
             throw new RuntimeException("required System-Property gateway.host not defined");
 
-        if(gatewayPort == null)
+        if(parentPort == null)
             throw new RuntimeException("required System-Property gateway.port not defined");
 
         System.out.println("ownAddress = " + ownAddress);
         System.out.println("ownPort = " + ownAddress);
 
-        System.out.println("gatewayAddress = " + gatewayAddress);
-        System.out.println("gatewayPort = " + gatewayPort);
+        System.out.println("gatewayAddress = " + parentAddress);
+        System.out.println("gatewayPort = " + parentPort);
 
 
-        // TODO Spawn thread, connecting to gatewayAddress:gatewayPort for registration
-
+        RegistrationThread thread = new RegistrationThread(2000, -1, parentAddress, parentPort, ownAddress, ownPort);
+        thread.start();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        //To change body of implemented methods use File | Settings | File Templates.
-        // TODO connect to gatewayAddress:gatewayPort and unregister
+        RegistrationService service = new RegistrationServiceImpl();
+        service.unRegisterOnParent(parentAddress, parentPort, ownAddress, ownPort);
     }
 }
