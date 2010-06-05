@@ -42,11 +42,20 @@
         <servlet-class>com.dominikdorn.rest.servlets.RequestHandlerServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>PingServlet</servlet-name>
+        <servlet-class>com.dominikdorn.rest.servlets.PingServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>RestRequestHandlerServlet</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>PingServlet</servlet-name>
+        <url-pattern>/ping</url-pattern>
+    </servlet-mapping>
 
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>
