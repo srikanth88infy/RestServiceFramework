@@ -1,4 +1,5 @@
 .project
 .classpath
+*.sql
 .settings/
 target/
