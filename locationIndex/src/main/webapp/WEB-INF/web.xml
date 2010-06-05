@@ -52,4 +52,9 @@
         <servlet-name>PingServlet</servlet-name>
         <url-pattern>/ping</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>getClientsServlet</servlet-name>
+        <url-pattern>/clients</url-pattern>
+    </servlet-mapping>
 </web-app>
