@@ -1,6 +1,7 @@
-package com.dominikdorn.rest.requestHandling;
+package com.dominikdorn.rest.servlets;
 
 import com.dominikdorn.rest.invoking.Invoker;
+import com.dominikdorn.rest.requestHandling.OperationType;
 import com.dominikdorn.rest.servlets.RequestHandlerServlet;
 import com.dominikdorn.rest.services.ObjectRegistry;
 import com.dominikdorn.rest.services.OutputType;
