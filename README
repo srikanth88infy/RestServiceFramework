@@ -1,0 +1,116 @@
+EVS Restful Service
+SS2010 Gruppe 42
+
+   - 0508142, Peter Petrov, pepetrov (-at-) gmail.com
+   - 0525449, Georg Merzdovnik, georg.merzdovnik (-at-) gmail.com
+   - 0553406, Michael Weissbacher, michael.weissbacher (-at-) gmail.com
+   - 0626165, Dominik Dorn, dominik.dorn (-at-) gmail.com
+
+
+Installation - Skaringa:
+------------------------
+
+Skaringa ist im Moment in keinem Public-Maven Repo. Deshalb bitte den
+repository/skaringa Ordner ins eigene Repository kopieren. Z.B. so
+
+cp repository/skaringa ~/.m2/repository/skaringa
+
+
+
+Nun sollten alle Dependencies zum Builden vorhanden sein, bzw. der
+Rest wird von Maven automatisch heruntergeladen.
+
+
+
+Builden des Frameworks + der Services:
+--------------------------------------
+
+bash ./buildAll.sh
+
+
+
+
+Ausfuehren - Vorbedingungen / Testsetup:
+----------------------------------------
+
+Bevor die Services gestartet werden koennen, muessen virtuelle IP-Adressen
+konfiguriert werden, da sonst das Binden an die entsprechende IP in Jetty
+fehlschlaegt.
+
+dazu muss als root das Script
+    createInterfaces.sh
+ausgefuehrt werden.
+
+Dieses erstellt zusaetzliche LoopBack-Interfaces und bindet diese an die IPs
+in unserem Test-Setup
+
+Am Ende des Skripts wird der Befehl zum cleanup ausgegeben. Deshalb das Fenster
+besser nicht schliessen, damit der Befehl danach zur Hand ist.
+
+
+Ausfuehren:
+-----------
+Es gibt ein Script
+    startEverything.sh
+
+welches ein komplettes Test-Setup mit 3 Locations, MetaService + ExternalService
+startet. Dieses ist mit Vorsicht zu geniesen, da sehr viel RAM benoetigt wird
+und vermutlich eure Maschine zu swappen anfangen wird (zumindest ists bei
+meinem Linux 4GB Ram so)
+
+Deshalb die Services einzeln starten.
+
+Jeder Service hat ein eigenes Startscript
+
+storage:
+    cd storage;
+    ./startStorage.sh
+
+etc.
+
+Diese Scripts sagen euch, wie sie aufgerufen werden moechten. Das Storage Script
+benoetigt zum Beispiel das eigene Netzwerk (das Interface-Init-Scripts
+macht netzwerke 101, 102, 103) und die eigene ip ( 10, 11, 12)
+
+z.B. ./startStorage 101 10
+
+startet dann den Jetty und bindet ihn an die entsprechende Ip.
+Das Storage Service verbindet sich dann automatisch zum LocationIndex und registriert
+sich dort. Das wird solange wiederholt, bis es erfolgreich ist, weshalb ihr am
+Anfang, sofern das LocationService nicht laeuft exceptions in der Console sehen werdets.
+
+Sobald das LocationService (ParentService) laeuft, werden diese aufhoeren.
+
+Gleich verhalten tut sich das LocationService gegenueber dem Gateway,
+das Gateway gegenueber dem MetaService und der
+CentralIndex gegenueber dem IndexGateway (Gateway des MetaService)
+
+Die Reihenfolge beim Starten der Systeme ist also relativ egal. 
+
+
+
+Arbeiten mit dem SCM / Github:
+------------------------------
+Bitte jeder einen Fork erstellen, darin einen Branch und dort arbeiten.
+Sobald eure Arbeit entsprechend fertig ist, einen Pull Request an mich ueber
+Github schicken, ich werd eure Aenderungen dann in mein Repository importieren.
+
+
+Maven/Ant:
+----------
+Auch wenn in der Angabe steht, man muss ein Ant-Skript verwenden, koennen wir
+laut Auskunft im Tuwis-Forum trotzdem maven + unsere Bash-Scripte verwenden.
+
+
+Fragen?
+-------
+Falls noch fragen sind, bitte schickts mir ein mail. Ich werd das dann hier einbauen.
+dominik (at) dominikdorn (punkt) com
+
+Aufgaben/Bugs:
+--------------
+Es wuerd sich empfehlen, den bei Github eingebauten Bug/Issue-Tracker zu verwenden.
+
+  http://github.com/domdorn/RestServiceFramework/issues
+
+  
