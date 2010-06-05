@@ -8,6 +8,7 @@
     <artifactId>parent</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
+    <name>EVS42</name>
 
     <modules>
         <module>framework</module>
@@ -136,6 +137,50 @@
         </plugins>
 
     </build>
+    <developers>
+        <developer>
+            <id>domdorn</id>
+            <email>dominik.dorn (-at-) gmail.com</email>
+            <name>Dominik Dorn</name>
+            <roles>
+                <role>Lead</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>peshkira</id>
+            <email>pepetrov (-at-) gmail.com</email>
+            <name>Peter Petrov</name>
+            <roles>
+                <role>Developer</role>
+                <role>MessageHandler</role>
+            </roles>
+        </developer>
 
+        <developer>
+            <id>mweissbacher</id>
+            <email>michael.weissbacher (-at-) gmail.com</email>
+            <name>Michael Weissbacher</name>
+            <roles>
+                <role>Developer</role>
+                <role>Security</role>
+            </roles>
+        </developer>
+
+        <developer>
+            <id>georg.merzdovnik</id>
+            <email>georg.merzdovnik (-at-) gmail.com</email>
+            <name>Georg Merzdovnik</name>
+            <roles>
+                <role>Developer</role>
+                <role>Security</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>http://github.com/domdorn/RestServiceFramework/issues</url>
+    </issueManagement>
 
 </project>
