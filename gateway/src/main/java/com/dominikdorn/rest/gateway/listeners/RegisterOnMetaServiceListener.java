@@ -1,5 +1,9 @@
 package com.dominikdorn.rest.gateway.listeners;
 
+import com.dominikdorn.rest.registration.RegistrationService;
+import com.dominikdorn.rest.registration.RegistrationServiceImpl;
+import com.dominikdorn.rest.registration.RegistrationThread;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -13,8 +17,8 @@ public class RegisterOnMetaServiceListener implements ServletContextListener{
     String ownInternalPort;
     String ownExternalAddress;
     String ownExternalPort;
-    String metaServiceAddress;
-    String metaServicePort;
+    String parentAddress;
+    String parentPort;
 
 
     @Override
@@ -27,9 +31,9 @@ public class RegisterOnMetaServiceListener implements ServletContextListener{
         ownExternalAddress = (String) System.getProperties().get("gateway.external.host");
         ownExternalPort = (String) System.getProperties().get("gateway.external.port");
 
-        metaServiceAddress = (String) System.getProperties().get("metaService.host");
+        parentAddress = (String) System.getProperties().get("metaService.host");
 
-        metaServicePort = (String) System.getProperties().get("metaService.port");
+        parentPort = (String) System.getProperties().get("metaService.port");
 
         if(ownInternalAddress == null)
             throw new RuntimeException("required System-Property gateway.internal.host not defined");
@@ -43,26 +47,26 @@ public class RegisterOnMetaServiceListener implements ServletContextListener{
         if(ownExternalPort == null)
             throw new RuntimeException("required System-Property gateway.external.port not defined");
 
-        if(metaServiceAddress == null)
+        if(parentAddress == null)
             throw new RuntimeException("required System-Property metaService.host not defined");
 
-        if(metaServicePort == null)
+        if(parentPort == null)
             throw new RuntimeException("required System-Property metaService.port not defined");
 
         System.out.println("ownInternalAddress = " + ownInternalAddress);
         System.out.println("ownInternalPort = " + ownInternalPort);
         System.out.println("ownExternalAddress = " + ownExternalAddress);
         System.out.println("ownExternalPort = " + ownExternalPort);
-        System.out.println("metaServiceAddress = " + metaServiceAddress);
-        System.out.println("metaServicePort = " + metaServicePort);
+        System.out.println("metaServiceAddress = " + parentAddress);
+        System.out.println("metaServicePort = " + parentPort);
 
-        // TODO Spawn thread, connecting to gatewayAddress:gatewayPort for registration
-
+        RegistrationThread thread = new RegistrationThread(2000, -1, parentAddress, parentPort,  ownExternalAddress, ownExternalPort);
+        thread.start();
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        //To change body of implemented methods use File | Settings | File Templates.
-        // TODO connect to gatewayAddress:gatewayPort and unregister
+        RegistrationService service = new RegistrationServiceImpl();
+        service.unRegisterOnParent(parentAddress, parentPort, ownExternalAddress, ownExternalPort);
     }
 }
