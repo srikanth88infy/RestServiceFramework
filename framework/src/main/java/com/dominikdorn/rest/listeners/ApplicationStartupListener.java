@@ -63,19 +63,15 @@ public class ApplicationStartupListener implements ServletContextListener {
             converterService.registerConverter(e.getKey(), e.getValue());
         }
 
-        // creating marshalling-strategies
-        JsonMarshallingStrategy jsonMarshallingStrategy = new JsonMarshallingStrategy();
-        XmlMarshallingStrategy xmlMarshallingStrategy = new XmlMarshallingStrategy();
-
-        Map<OutputType, MarshallingStrategy> strategies = new HashMap<OutputType, MarshallingStrategy>();
-        strategies.put(OutputType.JSON, jsonMarshallingStrategy);
-        strategies.put(OutputType.XML, xmlMarshallingStrategy);
-
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("RestPersistenceUnit");
 
-
         // creating marshaller
-        Marshaller marshaller = new Marshaller(strategies, OutputType.JSON);
+        Marshaller marshaller = (Marshaller) sce.getServletContext().getAttribute("restMarshaller");
+        if(marshaller == null)
+        {
+            throw new RuntimeException("The Marshaller is not yet registered. Make sure, that the MarshallerListener is registered before the ApplicationStartupListener in web.xml");
+        }
+
 
         RestService serviceImpl = new RestServiceImpl(emf);
         RestService service = (RestService) LoggingInterceptor.getProxy( serviceImpl );
@@ -84,13 +80,11 @@ public class ApplicationStartupListener implements ServletContextListener {
         Invoker invokerImpl = new InvokerImpl(marshaller, service, converterService);
         Invoker invoker = (Invoker) LoggingInterceptor.getProxy(invokerImpl);
 
-        EncodingNegotiator negotiator = new EncodingNegotiator();
 
 
         // registers the registry & the invoker in application scope
         sce.getServletContext().setAttribute("restObjectRegistry", registry);
         sce.getServletContext().setAttribute("restInvoker", invoker);
-        sce.getServletContext().setAttribute("restEncodingNegotiator", negotiator);
     }
 
     public URL getWebInfClassesURL(ServletContext context) {

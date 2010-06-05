@@ -113,4 +113,40 @@ Es wuerd sich empfehlen, den bei Github eingebauten Bug/Issue-Tracker zu verwend
 
   http://github.com/domdorn/RestServiceFramework/issues
 
-  
+
+Zugriff auf die Servlets:
+-------------------------
+
+Die verschiedenen Services haben folgende Servlets registriert
+
+
+Storage:
+
+Servlet "/api"
+/api/items
+/api/placements
+/api/racks
+
+Servlet "ping"
+/ping
+
+LocationIndex:
+/register
+/unRegister
+/ping
+/clients
+
+Gateway:
+/register
+/unRegister
+/ping
+
+CentralIndex:
+/clients
+/ping
+
+IndexGateway
+/clients
+/ping
+/register
+/unRegister

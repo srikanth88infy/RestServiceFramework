@@ -11,6 +11,12 @@
     <listener>
         <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.MarshallerListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.EncodingNegotiatorListener</listener-class>
+    </listener>
 
     <servlet>
         <servlet-name>registerServlet</servlet-name>
@@ -27,6 +33,10 @@
         <servlet-class>com.dominikdorn.rest.servlets.PingServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>getClientsServlet</servlet-name>
+        <servlet-class>com.dominikdorn.rest.servlets.GetClientsServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>registerServlet</servlet-name>
@@ -41,5 +51,10 @@
     <servlet-mapping>
         <servlet-name>PingServlet</servlet-name>
         <url-pattern>/ping</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>getClientsServlet</servlet-name>
+        <url-pattern>/clients</url-pattern>
     </servlet-mapping>
 </web-app>

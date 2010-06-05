@@ -4,10 +4,6 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
-    <listener>
-        <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
-    </listener>
-
     <servlet>
         <servlet-name>registerServlet</servlet-name>
         <servlet-class>com.dominikdorn.rest.servlets.RegisterServlet</servlet-class>
@@ -23,6 +19,21 @@
         <servlet-class>com.dominikdorn.rest.servlets.PingServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>getClientsServlet</servlet-name>
+        <servlet-class>com.dominikdorn.rest.servlets.GetClientsServlet</servlet-class>
+    </servlet>
+
+    <!-- TODO: this should be a forwarding impl -->
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.MarshallerListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.EncodingNegotiatorListener</listener-class>
+    </listener>
 
     <servlet-mapping>
         <servlet-name>registerServlet</servlet-name>
@@ -39,4 +50,8 @@
         <url-pattern>/ping</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>getClientsServlet</servlet-name>
+        <url-pattern>/clients</url-pattern>
+    </servlet-mapping>
 </web-app>

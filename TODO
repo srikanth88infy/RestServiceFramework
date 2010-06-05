@@ -1,0 +1,28 @@
+TODO  aka "Noch zu erledigende Sachen"
+
+Dominik:
+    - Schema management: mehrere Storages koennen sich eine Datenbank teilen,
+      arbeiten aber in verschiedenen Schemas (namespaces)
+
+Peter:
+    - Thread der Ueberprueft ob Kinder noch da sind
+        - request auf /ping in regelmaessigen Abstaenden
+        - falls kind tod, dann aus ClientRegistry loeschen
+        - ggf. merken wenn ein kind stirbt, und spaeter nochmal pruefen ob kind wieder da ist
+    - Annahme von Suchanfragen im ExternalService
+    - Liste von Clients beim IndexGateway holen ( /clients )
+    - Suchanfrage an jedes Gateway schicken, Service-Dauer mitprotokollieren
+    - Ergebnisse von den Gateways zusammenfassen und an Client zurueck schicken
+    - Gateway: Holen der Storages vom LocationIndex ( /clients )
+    - stellen der Suchanfrage an jeden Storage
+    - Aggregieren der Results, vergeben einer Addresse zu diesem Storage
+    wie z.B. GatewayIP:Port/Storage-host-ip/id
+      also z.B.
+       193.82.103.1:8080/10/5
+
+
+Michael/Georg:
+    - Abklaeren, wie PKI zu verwenden ist... wo gibts die Keys, wie werden sie verwaltet
+    - Entsprechende Logik zum ver-/entschluesseln von Requests und an entsprechenden Stellen
+      einbauen.
+
