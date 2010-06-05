@@ -29,20 +29,19 @@ public class GetClientsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        try{
-        List<String> clients = registry.getClients();
+        try {
+            List<String> clients = registry.getClients();
 
-        OutputType type = negotiator.detect(req.getContentType());
-            if(type.equals(OutputType.UNSUPPORTED))
+            OutputType type = negotiator.detect(req.getContentType());
+            if (type.equals(OutputType.UNSUPPORTED))
                 type = OutputType.JSON;
-        String result = marshaller.serialize(clients, java.util.List.class, type);
+            String result = marshaller.serialize(clients, java.util.List.class, type);
 
-        resp.setStatus(200);
-        resp.getOutputStream().print(result);
-        resp.getOutputStream().close();
+            resp.setStatus(200);
+            resp.getOutputStream().print(result);
+            resp.getOutputStream().close();
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getOutputStream().print("An error has occured, please see the servers log files");
             resp.getOutputStream().close();
@@ -56,17 +55,17 @@ public class GetClientsServlet extends HttpServlet {
 
         this.registry = (ClientRegistry) config.getServletContext().getAttribute("clientRegistry");
 
-        if(registry == null)
+        if (registry == null)
             throw new ServletException("ClientRegistry is not set. Please add the ClientRegistryListener to your web.xml");
 
         this.marshaller = (Marshaller) config.getServletContext().getAttribute("restMarshaller");
 
-        if(marshaller == null)
+        if (marshaller == null)
             throw new ServletException("The Marshaller is null. Please make sure, that the MarshallerListener is loaded. ");
 
         this.negotiator = (EncodingNegotiator) config.getServletContext().getAttribute("restEncodingNegotiator");
 
-        if(negotiator == null)
+        if (negotiator == null)
             throw new ServletException("The EncodingNegotiator is null. Please make sure, that the EncodingNegotiatorListener is loaded. ");
     }
 
