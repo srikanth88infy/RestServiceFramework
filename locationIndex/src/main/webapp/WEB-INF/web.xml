@@ -11,6 +11,12 @@
     <listener>
         <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.MarshallerListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.EncodingNegotiatorListener</listener-class>
+    </listener>
 
     <servlet>
         <servlet-name>registerServlet</servlet-name>
