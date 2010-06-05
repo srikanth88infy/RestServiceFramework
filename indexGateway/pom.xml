@@ -12,7 +12,8 @@
     <artifactId>indexGateway</artifactId>
     <version>1.0</version>
     <packaging>war</packaging>
-
+    <name>MetaService - IndexGateway</name>
+    
     <dependencies>
         <dependency>
             <groupId>com.dominikdorn.rest</groupId>

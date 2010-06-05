@@ -12,6 +12,7 @@
     <artifactId>locationIndex</artifactId>
     <version>1.0</version>
     <packaging>war</packaging>
+    <name>Location - LocationIndex</name>
 
     <dependencies>
         <dependency>
