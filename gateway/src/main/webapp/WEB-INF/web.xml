@@ -7,6 +7,9 @@
     <listener>
         <listener-class>com.dominikdorn.rest.gateway.listeners.RegisterOnMetaServiceListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
+    </listener>
 
     <servlet>
         <servlet-name>registerServlet</servlet-name>

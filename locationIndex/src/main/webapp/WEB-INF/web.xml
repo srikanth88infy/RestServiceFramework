@@ -8,6 +8,9 @@
     <listener>
         <listener-class>com.dominikdorn.rest.locationIndex.listeners.RegisterOnGatewayListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
+    </listener>
 
     <servlet>
         <servlet-name>registerServlet</servlet-name>

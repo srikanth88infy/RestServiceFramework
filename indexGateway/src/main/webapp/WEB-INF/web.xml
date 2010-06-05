@@ -4,6 +4,10 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>registerServlet</servlet-name>
         <servlet-class>com.dominikdorn.rest.servlets.RegisterServlet</servlet-class>

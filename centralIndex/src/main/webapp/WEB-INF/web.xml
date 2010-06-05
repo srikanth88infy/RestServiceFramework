@@ -9,6 +9,10 @@
         <listener-class>com.dominikdorn.rest.metaService.centralIndex.listeners.RegisterOnMetaServiceGatewayListener</listener-class>
     </listener>
 
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>registerServlet</servlet-name>
         <servlet-class>com.dominikdorn.rest.servlets.RegisterServlet</servlet-class>
