@@ -5,10 +5,11 @@ Dominik:
       arbeiten aber in verschiedenen Schemas (namespaces)
 
 Peter:
-    - Thread der Ueberprueft ob Kinder noch da sind
-        - request auf /ping in regelmaessigen Abstaenden
-        - falls kind tod, dann aus ClientRegistry loeschen
-        - ggf. merken wenn ein kind stirbt, und spaeter nochmal pruefen ob kind wieder da ist
+    - Thread der Ueberprueft ob Kinder noch da sind (check)
+        - request auf /ping in regelmaessigen Abstaenden (jede 10 sec)
+        - falls kind tod, dann aus ClientRegistry loeschen (check)
+        - ggf. merken wenn ein kind stirbt, und spaeter nochmal pruefen ob kind wieder da ist (macht kein Sinn, da es sowieso unregistered wird)
+        - ??? Brauchen wir das ueberall oder nur im index gateway (so wie es jetzt ist) ???
     - Annahme von Suchanfragen im ExternalService
     - Liste von Clients beim IndexGateway holen ( /clients )
     - Suchanfrage an jedes Gateway schicken, Service-Dauer mitprotokollieren
