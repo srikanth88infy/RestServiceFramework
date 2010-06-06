@@ -1,57 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5">
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
 
-    <servlet>
-        <servlet-name>registerServlet</servlet-name>
-        <servlet-class>com.dominikdorn.rest.servlets.RegisterServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>registerServlet</servlet-name>
+		<servlet-class>com.dominikdorn.rest.servlets.RegisterServlet
+		</servlet-class>
+	</servlet>
 
-    <servlet>
-        <servlet-name>unRegisterServlet</servlet-name>
-        <servlet-class>com.dominikdorn.rest.servlets.UnRegisterServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>unRegisterServlet</servlet-name>
+		<servlet-class>com.dominikdorn.rest.servlets.UnRegisterServlet
+		</servlet-class>
+	</servlet>
 
-    <servlet>
-        <servlet-name>PingServlet</servlet-name>
-        <servlet-class>com.dominikdorn.rest.servlets.PingServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>PingServlet</servlet-name>
+		<servlet-class>com.dominikdorn.rest.servlets.PingServlet
+		</servlet-class>
+	</servlet>
 
-    <servlet>
-        <servlet-name>getClientsServlet</servlet-name>
-        <servlet-class>com.dominikdorn.rest.servlets.GetClientsServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>getClientsServlet</servlet-name>
+		<servlet-class>com.dominikdorn.rest.servlets.GetClientsServlet
+		</servlet-class>
+	</servlet>
 
-    <!-- TODO: this should be a forwarding impl -->
-    <listener>
-        <listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>com.dominikdorn.rest.listeners.MarshallerListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>com.dominikdorn.rest.listeners.EncodingNegotiatorListener</listener-class>
-    </listener>
+	<!-- TODO: this should be a forwarding impl -->
+	<listener>
+		<listener-class>com.dominikdorn.rest.listeners.ClientRegistryListener
+		</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.dominikdorn.rest.listeners.MarshallerListener
+		</listener-class>
+	</listener>
+	<listener>
+		<listener-class>
+			com.dominikdorn.rest.listeners.EncodingNegotiatorListener
+		</listener-class>
+	</listener>
+	<listener>
+		<listener-class>
+			com.dominikdorn.rest.metaservice.indexgateway.listeners.ChildLookupListener
+		</listener-class>
+	</listener>
 
-    <servlet-mapping>
-        <servlet-name>registerServlet</servlet-name>
-        <url-pattern>/register</url-pattern>
-    </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>unRegisterServlet</servlet-name>
-        <url-pattern>/unRegister</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>registerServlet</servlet-name>
+		<url-pattern>/register</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>PingServlet</servlet-name>
-        <url-pattern>/ping</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>unRegisterServlet</servlet-name>
+		<url-pattern>/unRegister</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>getClientsServlet</servlet-name>
-        <url-pattern>/clients</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PingServlet</servlet-name>
+		<url-pattern>/ping</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>getClientsServlet</servlet-name>
+		<url-pattern>/clients</url-pattern>
+	</servlet-mapping>
 </web-app>
