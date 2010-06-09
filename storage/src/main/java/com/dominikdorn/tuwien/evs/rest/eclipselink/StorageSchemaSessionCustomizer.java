@@ -12,19 +12,18 @@ import org.postgresql.util.PSQLException;
  * 0626165
  * dominik.dorn@tuwien.ac.at
  */
-public class StorageSchemaSessionCustomizer implements SessionCustomizer{
+public class StorageSchemaSessionCustomizer implements SessionCustomizer {
     @Override
     public void customize(Session session) throws Exception {
 
-        session.getEventManager().addListener(new SessionEventAdapter(){
+        session.getEventManager().addListener(new SessionEventAdapter() {
             @Override
             public void postConnect(SessionEvent event) {
 
-                System.out.println("this is triggered after a connect");
+//                System.out.println("this is triggered after a connect");
 
 
             }
-
 
 
             @Override
@@ -34,18 +33,14 @@ public class StorageSchemaSessionCustomizer implements SessionCustomizer{
 
                 event.getSession().getLogin();
                 String schemaName = (String) event.getSession().getProperty("schema.name");
-                if(schemaName != null && !schemaName.isEmpty())
-                {
+                if (schemaName != null && !schemaName.isEmpty()) {
                     UnitOfWork unit = event.getSession().acquireUnitOfWork();
-    //                System.out.println("dropping schema");
-    //                unit.executeNonSelectingSQL("DROP SCHEMA test123 CASCADE;");
 
                     System.out.println("creating schema");
-                    try{
-                    unit.executeNonSelectingSQL("CREATE SCHEMA " + schemaName );
+                    try {
+                        unit.executeNonSelectingSQL("CREATE SCHEMA " + schemaName);
                     }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         // we know this;
                     }
                     System.out.println("setting search_path");
