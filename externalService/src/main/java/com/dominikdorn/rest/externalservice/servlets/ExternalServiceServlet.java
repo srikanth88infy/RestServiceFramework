@@ -1,6 +1,7 @@
 package com.dominikdorn.rest.externalservice.servlets;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -54,7 +55,7 @@ public class ExternalServiceServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
+    protected void service(HttpServletRequest req, HttpServletResponse res) {
 
         String criteria = req.getParameter("criteria");
         System.out.println("Search for: " + criteria);
@@ -64,10 +65,20 @@ public class ExternalServiceServlet extends HttpServlet {
         if (Utilities.ping(addr)) {
 
             List<String> clients = Utilities.getClients(addr, this.marshaller);
+            final Date start = new Date();
 
-            for (String c : clients) {
-                System.out.println("Contacting: " + c);
+            for (String client : clients) {
+
+                System.out.println("Contacting: " + client);
+
+                if (Utilities.ping(client)) {
+                    Utilities.search(client, criteria);
+                } else {
+                    System.err.println(client + " is not responding!");
+                }
             }
+
+            final Date end = new Date();
         } else {
             final RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/404.xhtml");
             try {
