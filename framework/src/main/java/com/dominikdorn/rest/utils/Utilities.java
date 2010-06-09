@@ -12,7 +12,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 import com.dominikdorn.rest.marshalling.Marshaller;
 import com.dominikdorn.rest.services.OutputType;
@@ -69,6 +72,45 @@ public class Utilities {
         }
 
         return result;
+    }
+
+    public static void search(final String addr, final String criteria) {
+        final HttpClient client = new DefaultHttpClient();
+        final HttpPost post = new HttpPost("http://" + addr + "/search");
+        //final HttpParams params = new BasicHttpParams();
+        System.out.println("UTILS: " + criteria);
+        post.getParams().setParameter("criteria", criteria);
+        System.out.println(post.getURI().toString());
+        
+        // final List<String> result = new ArrayList<String>();
+
+        try {
+            HttpResponse response = client.execute(post);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                final StringBuffer resp = new StringBuffer();
+                final InputStream in = entity.getContent();
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    resp.append(line);
+                }
+                reader.close();
+
+                System.out.println("Response: " + resp.toString());
+                // System.out.println(Arrays.deepToString(response.getAllHeaders()));
+
+                // result.addAll((List<String>)
+                // marshaller.deSerialize(resp.toString(), List.class,
+                // OutputType.JSON));
+
+            }
+        } catch (IOException e) {
+            // what to do here?
+            // e.printStackTrace();
+        }
+
+        // return result;
     }
 
 }
