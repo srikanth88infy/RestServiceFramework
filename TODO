@@ -10,6 +10,12 @@ Peter:
         - falls kind tod, dann aus ClientRegistry loeschen (check)
         - ggf. merken wenn ein kind stirbt, und spaeter nochmal pruefen ob kind wieder da ist (macht kein Sinn, da es sowieso unregistered wird)
         - ??? Brauchen wir das ueberall oder nur im index gateway (so wie es jetzt ist) ???
+            wenn mans generisch macht und ins framework zieht, kann mans ueberall einfach einbinden.
+            
+            Hintergrund: Wenn der Parent versucht seine kinder zu pingen, kurz aber kein netzwerk
+            hat, wird er alle kinder unRegistern. Die kinder bekommen davon aber nix mit und werden
+            sich deshalb auch nicht neu registrieren.
+
     - Annahme von Suchanfragen im ExternalService
     - Liste von Clients beim IndexGateway holen ( /clients )
     - Suchanfrage an jedes Gateway schicken, Service-Dauer mitprotokollieren

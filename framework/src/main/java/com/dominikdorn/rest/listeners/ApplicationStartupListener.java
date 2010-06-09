@@ -63,8 +63,11 @@ public class ApplicationStartupListener implements ServletContextListener {
             converterService.registerConverter(e.getKey(), e.getValue());
         }
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("RestPersistenceUnit");
-
+        EntityManagerFactory emf = (EntityManagerFactory) sce.getServletContext().getAttribute("restEMF");
+        if(emf == null)
+        {
+            throw new RuntimeException("The EntityManagerFactory is not yet registered. Make sure, that the PersitenceListener is placed before the ApplicationStartupListener");
+        }              
         // creating marshaller
         Marshaller marshaller = (Marshaller) sce.getServletContext().getAttribute("restMarshaller");
         if(marshaller == null)
@@ -113,6 +116,7 @@ public class ApplicationStartupListener implements ServletContextListener {
      */
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        sce.getServletContext().removeAttribute("restObjectRegistry");
+        sce.getServletContext().removeAttribute("restInvoker");
     }
 }

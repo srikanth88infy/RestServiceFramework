@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+    <persistence-unit name="RestPersistenceUnit">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>com.dominikdorn.tuwien.evs.rest.domain.Rack</class>
+        <class>com.dominikdorn.tuwien.evs.rest.domain.Item</class>
+        <class>com.dominikdorn.tuwien.evs.rest.domain.Placement</class>
+        <properties>
+            <property name="javax.persistence.transactionType" value="RESOURCE_LOCAL" />
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.0.0.1:5432/evs"/>
+            <property name="javax.persistence.jdbc.user" value="evs"/>
+            <property name="javax.persistence.jdbc.password" value="evs10"/>
+            <property name="eclipselink.target-database" value="POSTGRESQL" />
+            <property name="eclipselink.ddl-generation" value="create-tables" />
+        </properties>
+    </persistence-unit>
+</persistence>

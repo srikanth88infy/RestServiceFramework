@@ -29,6 +29,13 @@
         <filter-name>RegistryFilter</filter-name>
         <servlet-name>RestRequestHandlerServlet</servlet-name>
     </filter-mapping>
+    <listener>
+        <listener-class>com.dominikdorn.tuwien.evs.rest.listener.PreparePersistenceListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>com.dominikdorn.rest.listeners.PersistenceListener</listener-class>
+    </listener>
 
     <listener>
         <listener-class>com.dominikdorn.rest.listeners.MarshallerListener</listener-class>
