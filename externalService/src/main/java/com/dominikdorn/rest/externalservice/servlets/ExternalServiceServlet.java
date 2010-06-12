@@ -1,6 +1,13 @@
 package com.dominikdorn.rest.externalservice.servlets;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
@@ -67,14 +74,49 @@ public class ExternalServiceServlet extends HttpServlet {
             List<String> clients = Utilities.getClients(addr, this.marshaller);
             final Date start = new Date();
 
+            System.out.println(addr);
             for (String client : clients) {
 
-                System.out.println("Contacting: " + client);
-
-                if (Utilities.ping(client)) {
-                    Utilities.search(client, criteria);
+                if (client.startsWith("10")) { //ugly hack
+                    continue;
                 } else {
-                    System.err.println(client + " is not responding!");
+
+                    System.out.println("Contacting: " + client);
+
+                    if (Utilities.ping(client)) {
+                        // Utilities.search(client, criteria);
+                        try {
+                            URL miurl = new URL("http://" + client + "/search");
+                            URLConnection con = miurl.openConnection();
+
+                            con.setDoOutput(true);
+                            con.setDoInput(true);
+                            con.setUseCaches(false);
+                            con.setRequestProperty("Content-type", req.getContentType());
+                            con.setRequestProperty("Content-length", "" + req.getContentLength());
+                            con.setRequestProperty("criteria", criteria);
+
+                            DataOutputStream dos = new DataOutputStream(con.getOutputStream());
+                            dos.writeBytes("criteria=" + criteria);
+                            dos.close();
+
+                            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                            String linea;
+                            String todo = "";
+
+                            while ((linea = in.readLine()) != null)
+                                todo = todo + linea;
+
+                            in.close();
+                            
+                            PrintWriter out = res.getWriter();
+                            out.print(todo);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.err.println(client + " is not responding!");
+                    }
                 }
             }
 
@@ -91,5 +133,4 @@ public class ExternalServiceServlet extends HttpServlet {
         }
 
     }
-
 }
