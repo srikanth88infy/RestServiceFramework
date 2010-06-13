@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class ExternalServiceServlet extends HttpServlet {
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse res) {
+    protected void service(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
         String criteria = req.getParameter("criteria");
         System.out.println("Search for: " + criteria);
@@ -70,9 +69,13 @@ public class ExternalServiceServlet extends HttpServlet {
         final String addr = this.metaAddr + ":" + this.metaPort;
 
         if (Utilities.ping(addr)) {
-
-            List<String> clients = Utilities.getClients(addr, this.marshaller);
+            
             final Date start = new Date();
+            List<String> clients = Utilities.getClients(addr, this.marshaller);
+            String response = "";
+            PrintWriter out = res.getWriter();
+            out.println("<html><head><title>Search</title></head>");
+            out.println("<body><h1>External Service Search</h1>");
 
             System.out.println(addr);
             for (String client : clients) {
@@ -84,33 +87,31 @@ public class ExternalServiceServlet extends HttpServlet {
                     System.out.println("Contacting: " + client);
 
                     if (Utilities.ping(client)) {
-                        // Utilities.search(client, criteria);
                         try {
-                            URL miurl = new URL("http://" + client + "/search");
-                            URLConnection con = miurl.openConnection();
+                            URL url = new URL("http://" + client + "/search");
+                            URLConnection con = url.openConnection();
 
                             con.setDoOutput(true);
                             con.setDoInput(true);
                             con.setUseCaches(false);
                             con.setRequestProperty("Content-type", req.getContentType());
                             con.setRequestProperty("Content-length", "" + req.getContentLength());
-                            con.setRequestProperty("criteria", criteria);
+                            con.setRequestProperty("Accept", req.getHeader("Accept"));
 
                             DataOutputStream dos = new DataOutputStream(con.getOutputStream());
                             dos.writeBytes("criteria=" + criteria);
                             dos.close();
 
                             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                            String linea;
-                            String todo = "";
+                            String line;
+                            
 
-                            while ((linea = in.readLine()) != null)
-                                todo = todo + linea;
+                            while ((line = in.readLine()) != null) {
+                                response = response + line;
+                            }
 
                             in.close();
                             
-                            PrintWriter out = res.getWriter();
-                            out.print(todo);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -119,8 +120,15 @@ public class ExternalServiceServlet extends HttpServlet {
                     }
                 }
             }
-
             final Date end = new Date();
+            final long qos = end.getTime() - start.getTime();
+            
+            System.out.println(Utilities.formatTime(qos));
+            out.println("<p>Request duration: " + Utilities.formatTime(qos) +  "</p>");
+            out.println(response);
+            out.println("</body></html>");
+            
+            
         } else {
             final RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/404.xhtml");
             try {

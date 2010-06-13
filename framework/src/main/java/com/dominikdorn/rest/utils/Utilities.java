@@ -18,11 +18,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 
 import com.dominikdorn.rest.marshalling.Marshaller;
-import com.dominikdorn.rest.registration.RegisteringException;
 import com.dominikdorn.rest.services.OutputType;
 
 public class Utilities {
@@ -79,35 +76,43 @@ public class Utilities {
         return result;
     }
 
-    public static HttpResponse search(final String addr, final String criteria) {
+    public static HttpResponse search(final String addr, final String criteria, final String acceptHeader) {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("name", criteria));
         params.add(new BasicNameValuePair("description", criteria));
 
-
-       
-        
         final HttpClient client = new DefaultHttpClient();
         final HttpPost post = new HttpPost("http://" + addr + "/search");
-        post.getParams().setParameter("name", criteria);
-        post.setHeader("Accept:", "application/json");
+
+        if (acceptHeader != null) {
+            post.setHeader("Accept", acceptHeader);
+        } else {
+            post.setHeader("Accept", "application/json");
+        }
+        
         try {
-            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params,"UTF-8");
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "UTF-8");
             post.setEntity(entity);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
         try {
-            HttpResponse response = client.execute(post);
-            
-            return response;
-            
+            return client.execute(post);
         } catch (IOException e) {
-            // what to do here?
-            // e.printStackTrace();
             return null;
         }
+    }
+
+    public static String formatTime(final long millis) {
+        final long thousand = 1000;
+        final long sixty = 60;
+
+        final long milliseconds = millis % thousand;
+        final long seconds = ((millis - milliseconds) / thousand) % sixty;
+        final long minutes = (((millis - milliseconds) / thousand) / sixty) % sixty;
+
+        return "" + minutes + "m:" + seconds + "s:" + milliseconds + "ms";
     }
 
 }

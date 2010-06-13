@@ -30,11 +30,18 @@ public class SearchGatewayServlet extends HttpServlet {
 
     private EncodingNegotiator negotiator;
 
+    private String addr;
+
+    private String port;
+
     @Override
     public void init() throws ServletException {
         super.init();
 
         this.registry = (ClientRegistry) this.getServletContext().getAttribute("clientRegistry");
+        
+        this.addr = (String) System.getProperty("gateway.external.host");
+        this.port = (String) System.getProperty("gateway.external.port");
 
         if (this.registry == null) {
             throw new ServletException("Could not obtain the client registry!");
@@ -55,14 +62,8 @@ public class SearchGatewayServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        // TODO get all storages
-        // search them...
-        // aggregate response
-        // return it..
-
         String criteria = req.getParameter("criteria");
-        System.out.println("Parameters: " + req.getParameterMap().toString());
-        System.out.println(criteria);
+        String accept = req.getHeader("Accept");
 
         if (criteria != null) {
 
@@ -70,36 +71,49 @@ public class SearchGatewayServlet extends HttpServlet {
 
             if (clients.size() == 1) { // location index
                 String index = clients.get(0);
-                clients = Utilities.getClients(index, this.marshaller);
-                for (final String client : clients) {
-                    System.out.println("Contacting storage: " + client);
-                    HttpResponse response = Utilities.search(client + "/api/items", criteria);
-                    if (response != null) {
-                        HttpEntity entity = response.getEntity();
-                        if (entity != null) {
-                            final StringBuffer resp = new StringBuffer();
-                            final InputStream in = entity.getContent();
-                            final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                resp.append(line);
+
+                if (Utilities.ping(index)) {
+                    clients = Utilities.getClients(index, this.marshaller);
+
+                    for (final String client : clients) {
+
+                        if (Utilities.ping(client)) {
+                            System.out.println("Contacting storage: " + client);
+                            HttpResponse response = Utilities.search(client + "/api/items", criteria, accept);
+                            if (response != null) {
+                                HttpEntity entity = response.getEntity();
+                                if (entity != null) {
+                                    final StringBuffer resp = new StringBuffer();
+                                    final InputStream in = entity.getContent();
+                                    final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                                    String line;
+                                    
+                                    while ((line = reader.readLine()) != null) {
+                                        resp.append(line);
+                                    }
+                                    
+                                    if (accept != null && accept.contains("application/xml")) {
+                                        resp.insert(0, "<xml>");
+                                        resp.append("</xml>");
+                                    }
+                                    
+                                    resp.insert(0, "<p>" + this.addr + ":" + this.port + "/" + index + "/" + client + "</p>");
+                                    
+                                    reader.close();
+
+                                    System.out.println("Response: " + resp.toString());
+                                    PrintWriter out = res.getWriter();
+                                    
+                                    out.print(resp.toString());
+                                    
+                                }
                             }
-                            reader.close();
-
-                            System.out.println("Response: " + resp.toString());
-                            PrintWriter out = res.getWriter();
-                            out.print(resp.toString());
-                            
-                            // System.out.println(Arrays.deepToString(response.getAllHeaders()));
-
-                            // result.addAll((List<String>)
-                            // marshaller.deSerialize(resp.toString(),
-                            // List.class,
-                            // OutputType.JSON));
-
+                        } else {
+                            System.out.println("Storage at " + client + " is not responding");
                         }
                     }
-
+                } else {
+                    System.out.println("Location Index at " + index + " is not responding");
                 }
             }
         }
