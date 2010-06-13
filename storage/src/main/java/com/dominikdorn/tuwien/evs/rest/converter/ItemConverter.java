@@ -1,10 +1,10 @@
 package com.dominikdorn.tuwien.evs.rest.converter;
 
-import com.dominikdorn.tuwien.evs.rest.annotations.RestConverter;
-import com.dominikdorn.tuwien.evs.rest.converter.Converter;
-import com.dominikdorn.tuwien.evs.rest.domain.Item;
-
 import java.util.Map;
+
+import com.dominikdorn.rest.annotations.RestConverter;
+import com.dominikdorn.rest.converter.Converter;
+import com.dominikdorn.tuwien.evs.rest.domain.Item;
 
 /**
  * Dominik Dorn
