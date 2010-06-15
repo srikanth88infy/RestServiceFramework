@@ -43,7 +43,7 @@
 	</listener>
 	<listener>
 		<listener-class>
-			com.dominikdorn.rest.metaservice.indexgateway.listeners.ChildLookupListener
+			com.dominikdorn.rest.metaservice.indexgateway.listeners.MetaServiceChildLookupListener
 		</listener-class>
 	</listener>
 
