@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -42,6 +41,7 @@ public class Utilities {
 
     }
 
+    @SuppressWarnings("unchecked")
     public static List<String> getClients(final String addr, final Marshaller marshaller) {
 
         final HttpClient client = new DefaultHttpClient();
@@ -62,8 +62,8 @@ public class Utilities {
                 }
                 reader.close();
 
-                System.out.println(resp.toString());
-                System.out.println(Arrays.deepToString(response.getAllHeaders()));
+                //System.out.println(resp.toString());
+                //System.out.println(Arrays.deepToString(response.getAllHeaders()));
 
                 result.addAll((List<String>) marshaller.deSerialize(resp.toString(), List.class, OutputType.JSON));
 

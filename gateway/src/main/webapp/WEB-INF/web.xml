@@ -21,6 +21,11 @@
 			com.dominikdorn.rest.listeners.EncodingNegotiatorListener
 		</listener-class>
 	</listener>
+	<listener>
+		<listener-class>
+			com.dominikdorn.rest.gateway.listeners.GatewayChildLookupListener
+		</listener-class>
+	</listener>
 
 	<servlet>
 		<servlet-name>registerServlet</servlet-name>
@@ -42,7 +47,8 @@
 
 	<servlet>
 		<servlet-name>SearchGatewayServlet</servlet-name>
-		<servlet-class>com.dominikdorn.rest.gateway.servlets.SearchGatewayServlet
+		<servlet-class>
+			com.dominikdorn.rest.gateway.servlets.SearchGatewayServlet
 		</servlet-class>
 	</servlet>
 
@@ -60,7 +66,7 @@
 		<servlet-name>PingServlet</servlet-name>
 		<url-pattern>/ping</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet-mapping>
 		<servlet-name>SearchGatewayServlet</servlet-name>
 		<url-pattern>/search</url-pattern>

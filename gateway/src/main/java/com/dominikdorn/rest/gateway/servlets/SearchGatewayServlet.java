@@ -97,13 +97,12 @@ public class SearchGatewayServlet extends HttpServlet {
                                         resp.append("</xml>");
                                     }
                                     
-                                    resp.insert(0, "<p>" + this.addr + ":" + this.port + "/" + index + "/" + client + "</p>");
+                                    resp.insert(0, "<p>Results from: <em>" + this.addr + ":" + this.port + "/" + index + "/" + client + "</em></p>");
                                     
                                     reader.close();
 
-                                    System.out.println("Response: " + resp.toString());
+                                    //System.out.println("Response: " + resp.toString());
                                     PrintWriter out = res.getWriter();
-                                    
                                     out.print(resp.toString());
                                     
                                 }

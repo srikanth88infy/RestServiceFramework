@@ -17,6 +17,9 @@
     <listener>
         <listener-class>com.dominikdorn.rest.listeners.EncodingNegotiatorListener</listener-class>
     </listener>
+	<listener>
+        <listener-class>com.dominikdorn.rest.locationIndex.listeners.LocationIndexChildLookupListener</listener-class>
+    </listener>
 
     <servlet>
         <servlet-name>registerServlet</servlet-name>
