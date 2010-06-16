@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,7 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.dom4j.Document;
+import org.dom4j.Element;
 
+import com.dominikdorn.rest.gateway.utils.XMLResultGenerator;
 import com.dominikdorn.rest.marshalling.Marshaller;
 import com.dominikdorn.rest.registration.ClientRegistry;
 import com.dominikdorn.rest.services.EncodingNegotiator;
@@ -39,7 +43,7 @@ public class SearchGatewayServlet extends HttpServlet {
         super.init();
 
         this.registry = (ClientRegistry) this.getServletContext().getAttribute("clientRegistry");
-        
+
         this.addr = (String) System.getProperty("gateway.external.host");
         this.port = (String) System.getProperty("gateway.external.port");
 
@@ -70,8 +74,13 @@ public class SearchGatewayServlet extends HttpServlet {
             List<String> clients = this.registry.getClients();
 
             if (clients.size() == 1) { // location index
+                Date gStart = new Date();
                 String index = clients.get(0);
-
+                
+                final XMLResultGenerator gen = new XMLResultGenerator();
+                Document document = gen.createDocument();
+                Element root = gen.createRoot(document, this.addr, this.port);
+                
                 if (Utilities.ping(index)) {
                     clients = Utilities.getClients(index, this.marshaller);
 
@@ -79,7 +88,11 @@ public class SearchGatewayServlet extends HttpServlet {
 
                         if (Utilities.ping(client)) {
                             System.out.println("Contacting storage: " + client);
+                            Date start = new Date();
                             HttpResponse response = Utilities.search(client + "/api/items", criteria, accept);
+                            Date end = new Date();
+                            final long qos = end.getTime() - start.getTime();
+
                             if (response != null) {
                                 HttpEntity entity = response.getEntity();
                                 if (entity != null) {
@@ -87,23 +100,16 @@ public class SearchGatewayServlet extends HttpServlet {
                                     final InputStream in = entity.getContent();
                                     final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                                     String line;
-                                    
+
                                     while ((line = reader.readLine()) != null) {
                                         resp.append(line);
                                     }
-                                    
-                                    if (accept != null && accept.contains("application/xml")) {
-                                        resp.insert(0, "<xml>");
-                                        resp.append("</xml>");
-                                    }
-                                    
-                                    resp.insert(0, "<p>Results from: <em>" + this.addr + ":" + this.port + "/" + index + "/" + client + "</em></p>");
-                                    
-                                    reader.close();
 
-                                    //System.out.println("Response: " + resp.toString());
-                                    PrintWriter out = res.getWriter();
-                                    out.print(resp.toString());
+                                    reader.close();
+                                    
+                                    Element storage = gen.addStorage(root, client.substring(0, client.indexOf(':')), client
+                                        .substring(client.indexOf(':') + 1), Utilities.formatTime(qos));
+                                    gen.addResultToStorage(storage, resp.toString());
                                     
                                 }
                             }
@@ -114,9 +120,13 @@ public class SearchGatewayServlet extends HttpServlet {
                 } else {
                     System.out.println("Location Index at " + index + " is not responding");
                 }
+                
+                Date gEnd = new Date();
+                root.addAttribute("time", Utilities.formatTime(gEnd.getTime() - gStart.getTime()));
+                PrintWriter out = res.getWriter();
+                out.print(document.getRootElement().asXML());
             }
         }
 
     }
-
 }
