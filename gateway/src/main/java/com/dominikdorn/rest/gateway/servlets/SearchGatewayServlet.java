@@ -22,6 +22,7 @@ import com.dominikdorn.rest.gateway.utils.XMLResultGenerator;
 import com.dominikdorn.rest.marshalling.Marshaller;
 import com.dominikdorn.rest.registration.ClientRegistry;
 import com.dominikdorn.rest.services.EncodingNegotiator;
+import com.dominikdorn.rest.services.OutputType;
 import com.dominikdorn.rest.utils.Utilities;
 
 public class SearchGatewayServlet extends HttpServlet {
@@ -38,14 +39,25 @@ public class SearchGatewayServlet extends HttpServlet {
 
     private String port;
 
+    private XMLResultGenerator gen;
+
     @Override
     public void init() throws ServletException {
         super.init();
 
         this.registry = (ClientRegistry) this.getServletContext().getAttribute("clientRegistry");
+        this.gen = new XMLResultGenerator();
 
         this.addr = (String) System.getProperty("gateway.external.host");
         this.port = (String) System.getProperty("gateway.external.port");
+
+        if (this.addr == null) {
+            throw new ServletException("Could not obtain own address");
+        }
+
+        if (this.port == null) {
+            throw new ServletException("Could not obtain own port");
+        }
 
         if (this.registry == null) {
             throw new ServletException("Could not obtain the client registry!");
@@ -69,29 +81,39 @@ public class SearchGatewayServlet extends HttpServlet {
         String criteria = req.getParameter("criteria");
         String accept = req.getHeader("Accept");
 
-        if (criteria != null) {
+        PrintWriter out = res.getWriter();
+        String result = "";
 
-            List<String> clients = this.registry.getClients();
+        if (this.negotiator.detect(accept).equals(OutputType.XML)) {
+            result = this.serviceXML(criteria, accept);
+        } else if (this.negotiator.detect(accept).equals(OutputType.JSON)) {
+            result = this.serviceJSON(criteria, accept);
+        } else {
+            result = "Unsupported Output Type. Please specify a correct 'Accept' Header";
+        }
+
+        out.print(result);
+
+    }
+
+    private String serviceJSON(String criteria, String accept) throws IOException {
+        List<String> clients = this.registry.getClients();
+        if (criteria != null) {
 
             if (clients.size() == 1) { // location index
                 Date gStart = new Date();
                 String index = clients.get(0);
-                
-                final XMLResultGenerator gen = new XMLResultGenerator();
-                Document document = gen.createDocument();
-                Element root = gen.createRoot(document, this.addr, this.port);
-                
+
                 if (Utilities.ping(index)) {
                     clients = Utilities.getClients(index, this.marshaller);
 
                     for (final String client : clients) {
+                        Date start = new Date();
 
                         if (Utilities.ping(client)) {
                             System.out.println("Contacting storage: " + client);
-                            Date start = new Date();
+
                             HttpResponse response = Utilities.search(client + "/api/items", criteria, accept);
-                            Date end = new Date();
-                            final long qos = end.getTime() - start.getTime();
 
                             if (response != null) {
                                 HttpEntity entity = response.getEntity();
@@ -106,26 +128,107 @@ public class SearchGatewayServlet extends HttpServlet {
                                     }
 
                                     reader.close();
-                                    
-                                    Element storage = gen.addStorage(root, client.substring(0, client.indexOf(':')), client
-                                        .substring(client.indexOf(':') + 1), Utilities.formatTime(qos));
-                                    gen.addResultToStorage(storage, resp.toString());
-                                    
                                 }
+                            } else {
+
                             }
+
                         } else {
                             System.out.println("Storage at " + client + " is not responding");
+
                         }
+
+                        Date end = new Date();
+                        final long qos = end.getTime() - start.getTime();
                     }
+
                 } else {
                     System.out.println("Location Index at " + index + " is not responding");
                 }
-                
+
+                Date gEnd = new Date();
+                return null;
+            }
+
+            return null;
+
+        } else {
+            return null;
+        }
+    }
+
+    private String serviceXML(String criteria, String accept) throws IOException {
+
+        List<String> clients = this.registry.getClients();
+        Document document = this.gen.createDocument();
+        Element root = this.gen.createRoot(document, this.addr, this.port);
+        if (criteria != null) {
+
+            if (clients.size() == 1) { // location index
+                Date gStart = new Date();
+                String index = clients.get(0);
+
+                if (Utilities.ping(index)) {
+                    clients = Utilities.getClients(index, this.marshaller);
+
+                    for (final String client : clients) {
+                        Date start = new Date();
+                        Element storage = gen.addStorage(root, client.substring(0, client.indexOf(':')), client
+                            .substring(client.indexOf(':') + 1));
+
+                        if (Utilities.ping(client)) {
+                            System.out.println("Contacting storage: " + client);
+
+                            HttpResponse response = Utilities.search(client + "/api/items", criteria, accept);
+
+                            if (response != null) {
+                                HttpEntity entity = response.getEntity();
+                                if (entity != null) {
+                                    final StringBuffer resp = new StringBuffer();
+                                    final InputStream in = entity.getContent();
+                                    final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                                    String line;
+
+                                    while ((line = reader.readLine()) != null) {
+                                        resp.append(line);
+                                    }
+
+                                    reader.close();
+
+                                    this.gen.addResultToStorage(storage, resp.toString());
+
+                                }
+                            } else {
+                                this.gen.addErrorElement(storage, "An Exception occurred during the search!");
+                            }
+
+                        } else {
+                            System.out.println("Storage at " + client + " is not responding");
+                            this.gen.addErrorElement(storage, "Storage is not responding");
+
+                        }
+
+                        Date end = new Date();
+                        final long qos = end.getTime() - start.getTime();
+                        storage.addAttribute("time", Utilities.formatTime(qos));
+                    }
+
+                } else {
+                    System.out.println("Location Index at " + index + " is not responding");
+                    this.gen.addErrorElement(root, "LocationIndex is not responding");
+                }
+
                 Date gEnd = new Date();
                 root.addAttribute("time", Utilities.formatTime(gEnd.getTime() - gStart.getTime()));
-                PrintWriter out = res.getWriter();
-                out.print(document.getRootElement().asXML());
+                return root.asXML();
             }
+
+            this.gen.addErrorElement(root, "Could not obtain the Location index!").asXML();
+            return root.asXML();
+
+        } else {
+            this.gen.addErrorElement(root, "No Search Criteria specified!");
+            return root.asXML();
         }
 
     }

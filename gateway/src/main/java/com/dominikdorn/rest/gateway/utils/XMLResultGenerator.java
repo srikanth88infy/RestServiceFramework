@@ -16,8 +16,8 @@ public class XMLResultGenerator {
         return doc.addElement("results").addAttribute("host", host).addAttribute("port", port);
     }
     
-    public Element addStorage(Element res, String host, String port, String time) {
-        return res.addElement("storage").addAttribute("host", host).addAttribute("port", port).addAttribute("time", time);
+    public Element addStorage(Element res, String host, String port) {
+        return res.addElement("storage").addAttribute("host", host).addAttribute("port", port);
     }
     
     public void addResultToStorage(Element storage, String xml) {
@@ -27,5 +27,9 @@ public class XMLResultGenerator {
         } catch (DocumentException e) {
             
         }
+    }
+    
+    public Element addErrorElement(Element e, String error) {
+        return e.addElement("error").addText(error);
     }
 }
