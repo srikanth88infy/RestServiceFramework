@@ -4,11 +4,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.ParameterExpression;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -99,20 +97,17 @@ public class AbstractJpaDao<TYPE> implements GenericJpaDao<TYPE> {
         CriteriaQuery<TYPE> cq = cb.createQuery(getEntityClass());
         Root<TYPE> foo = cq.from(getEntityClass());
 
-        // loop through the list of parameters
-        Set<ParameterExpression<?>> params = cq.getParameters();
-
-        for (ParameterExpression<?> e : params) {
-            if (attributes.containsKey(e.getName())) {
-                cq.where(cb.equal(e, attributes.get(e.getName())));
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        for(String s : attributes.keySet())
+        {
+            if(foo.get(s) != null){
+                predicates.add(cb.like((Expression) foo.get(s), "%" + attributes.get(s) + "%" ));
             }
         }
-
-        // finish and execute the query
-        cq.select(foo);
+        cq.where(predicates.toArray(new Predicate[]{}));
         TypedQuery<TYPE> q = em.createQuery(cq);
+
         results = q.getResultList();
         return results;
-
     }
 }
