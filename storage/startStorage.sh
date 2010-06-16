@@ -9,7 +9,8 @@ ARGV=$@
 
 if [ $ARGC != 2 ]; then
   echo "Usage: ./startStorage.sh \$NETWORK \$HOSTIP"
-  echo "Example: ./startStorage.sh 103 101 "
+  echo "In the test setup, only 10, 11 + 12 are pre-setup storage host-ips"
+  echo "Example: ./startStorage.sh 103 10"
   exit 2;
 fi
 
