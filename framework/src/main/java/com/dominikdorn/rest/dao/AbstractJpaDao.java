@@ -1,12 +1,5 @@
 package com.dominikdorn.rest.dao;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
@@ -15,9 +8,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dominik Dorn
@@ -99,32 +93,23 @@ public class AbstractJpaDao<TYPE> implements GenericJpaDao<TYPE> {
 
     @Override
     public List<TYPE> findByAttributes(Map<String, String> attributes) {
-        
-        for (String s : attributes.keySet()) {
-            System.out.println("ATTR: " + s + " " + attributes.get(s));
-        }
-        
         List<TYPE> results;
         //set up the Criteria query
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<TYPE> cq = cb.createQuery(getEntityClass());
         Root<TYPE> foo = cq.from(getEntityClass());
 
+        // loop through the list of parameters
         Set<ParameterExpression<?>> params = cq.getParameters();
-        System.out.println("PARAMETEREXPRESSION: " + params.size());
 
-        cq.select(foo).where(cb.equal(foo.<String>get("name"), attributes.get("name")));
-        
-//        for (ParameterExpression<?> e : params) {
-//            System.out.println(e.getName());
-//            if (attributes.containsKey(e.getName())) {
-//                System.out.println("contains " + e.getName());
-//                cq.where(cb.equal(e, attributes.get(e.getName())));
-//            }
-//        }
+        for (ParameterExpression<?> e : params) {
+            if (attributes.containsKey(e.getName())) {
+                cq.where(cb.equal(e, attributes.get(e.getName())));
+            }
+        }
 
         // finish and execute the query
-//        cq.select(foo);
+        cq.select(foo);
         TypedQuery<TYPE> q = em.createQuery(cq);
         results = q.getResultList();
         return results;
