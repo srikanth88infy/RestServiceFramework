@@ -27,11 +27,11 @@ public class Placement {
     @Basic
     private String storingPosition;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
     private Item item;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn(name = "RACK_ID", referencedColumnName = "ID")
     private Rack rack;
 
