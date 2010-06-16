@@ -73,9 +73,7 @@ public class ExternalServiceServlet extends HttpServlet {
             final Date start = new Date();
             List<String> clients = Utilities.getClients(addr, this.marshaller);
             String response = "";
-            PrintWriter out = res.getWriter();
-            out.println("<html><head><title>Search</title></head>");
-            out.println("<body><h1>External Service Search</h1>");
+            
 
             System.out.println(addr);
             for (String client : clients) {
@@ -123,10 +121,11 @@ public class ExternalServiceServlet extends HttpServlet {
             final Date end = new Date();
             final long qos = end.getTime() - start.getTime();
             
-            System.out.println(Utilities.formatTime(qos));
-            out.println("<p>Request duration: " + Utilities.formatTime(qos) +  "</p>");
+            PrintWriter out = res.getWriter();
+            out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            out.println("<resultaggregate time = \"" + Utilities.formatTime(qos) + "\">");
             out.println(response);
-            out.println("</body></html>");
+            out.println("</resultaggregate>");
             
             
         } else {
