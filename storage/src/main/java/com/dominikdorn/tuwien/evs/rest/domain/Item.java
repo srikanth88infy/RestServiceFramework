@@ -35,7 +35,7 @@ public class Item {
     @Basic
     private Integer size;
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
     private List<Placement> placements;
 
     /**
