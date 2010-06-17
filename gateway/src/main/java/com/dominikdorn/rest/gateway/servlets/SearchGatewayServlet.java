@@ -126,11 +126,12 @@ public class SearchGatewayServlet extends HttpServlet {
                                     while ((line = reader.readLine()) != null) {
                                         resp.append(line);
                                     }
-
+                                    
+                                    System.out.println(resp.toString());
                                     reader.close();
                                 }
                             } else {
-
+                                System.out.println("RESPONSE IS NULL");
                             }
 
                         } else {

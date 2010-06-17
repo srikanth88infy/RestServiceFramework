@@ -123,8 +123,8 @@ public class Placement {
         int result = (int) (id ^ (id >>> 32));
         result = 31 * result + amount;
         result = 31 * result + (storingPosition != null ? storingPosition.hashCode() : 0);
-        result = 31 * result + (item != null ? item.hashCode() : 0);
-        result = 31 * result + (rack != null ? rack.hashCode() : 0);
+        //result = 31 * result + (item != null ? item.hashCode() : 0);
+        //result = 31 * result + (rack != null ? rack.hashCode() : 0);
         return result;
     }
 

@@ -126,10 +126,12 @@ public class ExternalServiceServlet extends HttpServlet {
             final Date end = new Date();
             final long qos = end.getTime() - start.getTime();
 
-            out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            out.println("<resultaggregate time = \"" + Utilities.formatTime(qos) + "\">");
+            if (this.negotiator.detect(accept).equals(OutputType.XML)) {
+                response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<resultaggregate time = \""
+                    + Utilities.formatTime(qos) + "\">" + response + "</resultaggregate>";
+            }
+
             out.println(response);
-            out.println("</resultaggregate>");
 
         } else {
             final RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/404.xhtml");
@@ -144,13 +146,13 @@ public class ExternalServiceServlet extends HttpServlet {
     }
 
     private String emptySearchCriteria(String accept) {
-        String defaultError = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<error>No search criteria provided! Please type something in the box</error>"; 
+        String defaultError = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<error>No search criteria provided! Please type something in the box</error>";
         if (this.negotiator.detect(accept).equals(OutputType.XML)) {
             return defaultError;
-            
+
         }
-        
+
         return defaultError;
-        
+
     }
 }
