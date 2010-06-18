@@ -18,6 +18,8 @@ import org.apache.http.HttpResponse;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import com.dominikdorn.rest.gateway.utils.JSONGatewayResult;
+import com.dominikdorn.rest.gateway.utils.JSONStorageResult;
 import com.dominikdorn.rest.gateway.utils.XMLResultGenerator;
 import com.dominikdorn.rest.marshalling.Marshaller;
 import com.dominikdorn.rest.registration.ClientRegistry;
@@ -98,6 +100,10 @@ public class SearchGatewayServlet extends HttpServlet {
 
     private String serviceJSON(String criteria, String accept) throws IOException {
         List<String> clients = this.registry.getClients();
+        JSONGatewayResult result = new JSONGatewayResult();
+        result.setHost(this.addr);
+        result.setPort(this.port);
+
         if (criteria != null) {
 
             if (clients.size() == 1) { // location index
@@ -109,7 +115,10 @@ public class SearchGatewayServlet extends HttpServlet {
 
                     for (final String client : clients) {
                         Date start = new Date();
-
+                        JSONStorageResult sResult = new JSONStorageResult();
+                        sResult.setHost(client.substring(0, client.indexOf(':')));
+                        sResult.setPort(client.substring(client.indexOf(':') + 1));
+                        
                         if (Utilities.ping(client)) {
                             System.out.println("Contacting storage: " + client);
 
@@ -126,35 +135,48 @@ public class SearchGatewayServlet extends HttpServlet {
                                     while ((line = reader.readLine()) != null) {
                                         resp.append(line);
                                     }
-                                    
+
                                     System.out.println(resp.toString());
                                     reader.close();
+                                    
+                                    sResult.setResult(resp.toString());
                                 }
+                                
                             } else {
-                                System.out.println("RESPONSE IS NULL");
+                                sResult.setError("An Exception occurred during the search!");
+                                
                             }
 
                         } else {
                             System.out.println("Storage at " + client + " is not responding");
+                            sResult.setError("Storage is not responding!");
 
                         }
 
                         Date end = new Date();
                         final long qos = end.getTime() - start.getTime();
+                        sResult.setTime(Utilities.formatTime(qos));
+                        result.getResults().add(sResult);
                     }
 
                 } else {
                     System.out.println("Location Index at " + index + " is not responding");
+                    result.setError("LocationIndex is not responding!");
+                    return this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
                 }
 
                 Date gEnd = new Date();
-                return null;
+                result.setTime(Utilities.formatTime(gEnd.getTime() - gStart.getTime()));
+                String serialize = this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
+                return serialize.replaceAll("\\\"", "\"");
             }
 
-            return null;
+            result.setError("Could not obtain the location index");
+            return this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
 
         } else {
-            return null;
+            result.setError("No Search Criteria specified!");
+            return this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
         }
     }
 

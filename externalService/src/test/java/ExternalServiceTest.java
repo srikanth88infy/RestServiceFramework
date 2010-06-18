@@ -30,7 +30,7 @@ public class ExternalServiceTest {
     private static final String XML_CONTENT = "application/xml";
 
     private static final String JSON_CONTENT = "application/json";
-
+    
     @Test
     public void shallSearchAndFindNothingXML() {
 
@@ -57,16 +57,116 @@ public class ExternalServiceTest {
     public void shallSearchAndFindNothingJSON() {
         if (Utilities.ping(EXTERNAL_SERVICE_ADDR)) {
             try {
-                String response = this.getResponse("Atom", JSON_CONTENT);
+                String response = this.getResponse("notexisting", JSON_CONTENT);
 
                 if (response == null) {
                     Assert.fail("No response from service!");
                 } else {
-                    System.out.println(response);
                     // no items in the list
-                    Assert.assertEquals(-1, response.indexOf("com.dominikdorn.tuwien.evs.rest.domain.Item"));
+                    Assert.assertNotSame(-1, response.indexOf("\"result\":\"[]\",\"error\":null}"));
                 }
 
+            } catch (IOException e) {
+                Assert.fail(e.getMessage());
+            }
+
+        } else {
+            ExternalServiceTest.LOG.info("External Service at " + EXTERNAL_SERVICE_ADDR + " is down, skipping test");
+        }
+    }
+    
+    @Test
+    public void shallSearchNameAndFindSomethingXML() {
+        if (Utilities.ping(EXTERNAL_SERVICE_ADDR)) {
+            try {
+                String response = this.getResponse("Test", XML_CONTENT);
+
+                if (response == null) {
+                    Assert.fail("No response!");
+                } else {
+                    Assert.assertEquals(-1, response.indexOf("xsi:type=\"com.dominikdorn.tuwien.evs.rest.domain.Item\"><name xsi:type=\"xsd:string\">Test Server</name>"));
+                }
+            } catch (IOException e) {
+                Assert.fail(e.getMessage());
+            }
+
+        } else {
+            ExternalServiceTest.LOG.info("External Service at " + EXTERNAL_SERVICE_ADDR + " is down, skipping test");
+        }
+    }
+    
+    @Test
+    public void shallSearchDescriptionAndFindSomethingXML() {
+        if (Utilities.ping(EXTERNAL_SERVICE_ADDR)) {
+            try {
+                String response = this.getResponse("A Test Server", XML_CONTENT);
+
+                if (response == null) {
+                    Assert.fail("No response!");
+                } else {
+                    Assert.assertNotSame(-1, response.indexOf("xsi:type=\"com.dominikdorn.tuwien.evs.rest.domain.Item\"><id xsi:type=\"xsd:long\">1</id><name xsi:type=\"xsd:string\">Test Server</name><description xsi:type=\"xsd:string\">A Test Server</description>"));
+                }
+            } catch (IOException e) {
+                Assert.fail(e.getMessage());
+            }
+
+        } else {
+            ExternalServiceTest.LOG.info("External Service at " + EXTERNAL_SERVICE_ADDR + " is down, skipping test");
+        }
+    }
+    
+    @Test
+    public void shallSearchNameAndFindSomethingJSON() {
+        if (Utilities.ping(EXTERNAL_SERVICE_ADDR)) {
+            try {
+                String response = this.getResponse("Test", JSON_CONTENT);
+
+                if (response == null) {
+                    Assert.fail("No response!");
+                } else {
+                    Assert.assertNotSame(-1, response.indexOf("Test"));
+                }
+            } catch (IOException e) {
+                Assert.fail(e.getMessage());
+            }
+
+        } else {
+            ExternalServiceTest.LOG.info("External Service at " + EXTERNAL_SERVICE_ADDR + " is down, skipping test");
+        }
+    }
+    
+    @Test
+    public void shallSearchDescriptionAndFindSomethingJSON() {
+        if (Utilities.ping(EXTERNAL_SERVICE_ADDR)) {
+            try {
+                String response = this.getResponse("A Test Server", JSON_CONTENT);
+
+                if (response == null) {
+                    Assert.fail("No response from service!");
+                } else {
+                    Assert.assertNotSame(-1, response.indexOf("\"description\":\"A Test Server\""));
+                }
+
+            } catch (IOException e) {
+                Assert.fail(e.getMessage());
+            }
+
+        } else {
+            ExternalServiceTest.LOG.info("External Service at " + EXTERNAL_SERVICE_ADDR + " is down, skipping test");
+        }
+    }
+    
+    @Test
+    public void shallSearchAndFindSomethingXML() {
+        if (Utilities.ping(EXTERNAL_SERVICE_ADDR)) {
+            try {
+                String response = this.getResponse("Atom", XML_CONTENT);
+
+                if (response == null) {
+                    Assert.fail("No response!");
+                } else {
+                    Assert.assertNotSame(-1, response.indexOf("<name xsi:type=\"xsd:string\">1HE Intel Atom Single-CPU CSE502 Server</name>"));
+                }
             } catch (IOException e) {
                 Assert.fail(e.getMessage());
             }

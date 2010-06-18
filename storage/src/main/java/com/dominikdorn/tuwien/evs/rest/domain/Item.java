@@ -1,11 +1,18 @@
 package com.dominikdorn.tuwien.evs.rest.domain;
 
-import com.dominikdorn.rest.annotations.Restful;
-import com.dominikdorn.rest.annotations.Searchable;
-
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+
+import com.dominikdorn.rest.annotations.Restful;
+import com.dominikdorn.rest.annotations.Searchable;
 
 /**
  * Dominik Dorn
@@ -35,7 +42,7 @@ public class Item {
     @Basic
     private Integer size;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "item")
     private List<Placement> placements;
 
     /**
@@ -114,7 +121,7 @@ public class Item {
         if (id != item.id) return false;
         if (description != null ? !description.equals(item.description) : item.description != null) return false;
         if (name != null ? !name.equals(item.name) : item.name != null) return false;
-        if (placements != null ? !placements.equals(item.placements) : item.placements != null) return false;
+       // if (placements != null ? !placements.equals(item.placements) : item.placements != null) return false;
         if (size != null ? !size.equals(item.size) : item.size != null) return false;
 
         return true;
@@ -126,7 +133,7 @@ public class Item {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (size != null ? size.hashCode() : 0);
-        result = 31 * result + (placements != null ? placements.hashCode() : 0);
+        //result = 31 * result + (placements != null ? placements.hashCode() : 0);
         return result;
     }
 }
