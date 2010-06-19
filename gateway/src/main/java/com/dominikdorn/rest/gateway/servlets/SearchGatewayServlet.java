@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,10 +15,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.dom4j.Document;
+import org.dom4j.Element;
 
+import com.dominikdorn.rest.gateway.utils.JSONGatewayResult;
+import com.dominikdorn.rest.gateway.utils.JSONStorageResult;
+import com.dominikdorn.rest.gateway.utils.XMLResultGenerator;
 import com.dominikdorn.rest.marshalling.Marshaller;
 import com.dominikdorn.rest.registration.ClientRegistry;
 import com.dominikdorn.rest.services.EncodingNegotiator;
+import com.dominikdorn.rest.services.OutputType;
 import com.dominikdorn.rest.utils.Utilities;
 
 public class SearchGatewayServlet extends HttpServlet {
@@ -34,14 +41,25 @@ public class SearchGatewayServlet extends HttpServlet {
 
     private String port;
 
+    private XMLResultGenerator gen;
+
     @Override
     public void init() throws ServletException {
         super.init();
 
         this.registry = (ClientRegistry) this.getServletContext().getAttribute("clientRegistry");
-        
+        this.gen = new XMLResultGenerator();
+
         this.addr = (String) System.getProperty("gateway.external.host");
         this.port = (String) System.getProperty("gateway.external.port");
+
+        if (this.addr == null) {
+            throw new ServletException("Could not obtain own address");
+        }
+
+        if (this.port == null) {
+            throw new ServletException("Could not obtain own port");
+        }
 
         if (this.registry == null) {
             throw new ServletException("Could not obtain the client registry!");
@@ -65,21 +83,47 @@ public class SearchGatewayServlet extends HttpServlet {
         String criteria = req.getParameter("criteria");
         String accept = req.getHeader("Accept");
 
+        PrintWriter out = res.getWriter();
+        String result = "";
+
+        if (this.negotiator.detect(accept).equals(OutputType.XML)) {
+            result = this.serviceXML(criteria, accept);
+        } else if (this.negotiator.detect(accept).equals(OutputType.JSON)) {
+            result = this.serviceJSON(criteria, accept);
+        } else {
+            result = "Unsupported Output Type. Please specify a correct 'Accept' Header";
+        }
+
+        out.print(result);
+
+    }
+
+    private String serviceJSON(String criteria, String accept) throws IOException {
+        List<String> clients = this.registry.getClients();
+        JSONGatewayResult result = new JSONGatewayResult();
+        result.setHost(this.addr);
+        result.setPort(this.port);
+
         if (criteria != null) {
 
-            List<String> clients = this.registry.getClients();
-
             if (clients.size() == 1) { // location index
+                Date gStart = new Date();
                 String index = clients.get(0);
 
                 if (Utilities.ping(index)) {
                     clients = Utilities.getClients(index, this.marshaller);
 
                     for (final String client : clients) {
-
+                        Date start = new Date();
+                        JSONStorageResult sResult = new JSONStorageResult();
+                        sResult.setHost(client.substring(0, client.indexOf(':')));
+                        sResult.setPort(client.substring(client.indexOf(':') + 1));
+                        
                         if (Utilities.ping(client)) {
                             System.out.println("Contacting storage: " + client);
+
                             HttpResponse response = Utilities.search(client + "/api/items", criteria, accept);
+
                             if (response != null) {
                                 HttpEntity entity = response.getEntity();
                                 if (entity != null) {
@@ -87,36 +131,128 @@ public class SearchGatewayServlet extends HttpServlet {
                                     final InputStream in = entity.getContent();
                                     final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                                     String line;
-                                    
+
                                     while ((line = reader.readLine()) != null) {
                                         resp.append(line);
                                     }
-                                    
-                                    if (accept != null && accept.contains("application/xml")) {
-                                        resp.insert(0, "<xml>");
-                                        resp.append("</xml>");
-                                    }
-                                    
-                                    resp.insert(0, "<p>Results from: <em>" + this.addr + ":" + this.port + "/" + index + "/" + client + "</em></p>");
-                                    
-                                    reader.close();
 
-                                    //System.out.println("Response: " + resp.toString());
-                                    PrintWriter out = res.getWriter();
-                                    out.print(resp.toString());
+                                    System.out.println(resp.toString());
+                                    reader.close();
                                     
+                                    sResult.setResult(resp.toString());
                                 }
+                                
+                            } else {
+                                sResult.setError("An Exception occurred during the search!");
+                                
                             }
+
                         } else {
                             System.out.println("Storage at " + client + " is not responding");
+                            sResult.setError("Storage is not responding!");
+
                         }
+
+                        Date end = new Date();
+                        final long qos = end.getTime() - start.getTime();
+                        sResult.setTime(Utilities.formatTime(qos));
+                        result.getResults().add(sResult);
                     }
+
                 } else {
                     System.out.println("Location Index at " + index + " is not responding");
+                    result.setError("LocationIndex is not responding!");
+                    return this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
                 }
+
+                Date gEnd = new Date();
+                result.setTime(Utilities.formatTime(gEnd.getTime() - gStart.getTime()));
+                String serialize = this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
+                return serialize.replaceAll("\\\"", "\"");
             }
+
+            result.setError("Could not obtain the location index");
+            return this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
+
+        } else {
+            result.setError("No Search Criteria specified!");
+            return this.marshaller.serialize(result, JSONGatewayResult.class, OutputType.JSON);
+        }
+    }
+
+    private String serviceXML(String criteria, String accept) throws IOException {
+
+        List<String> clients = this.registry.getClients();
+        Document document = this.gen.createDocument();
+        Element root = this.gen.createRoot(document, this.addr, this.port);
+        if (criteria != null) {
+
+            if (clients.size() == 1) { // location index
+                Date gStart = new Date();
+                String index = clients.get(0);
+
+                if (Utilities.ping(index)) {
+                    clients = Utilities.getClients(index, this.marshaller);
+
+                    for (final String client : clients) {
+                        Date start = new Date();
+                        Element storage = gen.addStorage(root, client.substring(0, client.indexOf(':')), client
+                            .substring(client.indexOf(':') + 1));
+
+                        if (Utilities.ping(client)) {
+                            System.out.println("Contacting storage: " + client);
+
+                            HttpResponse response = Utilities.search(client + "/api/items", criteria, accept);
+
+                            if (response != null) {
+                                HttpEntity entity = response.getEntity();
+                                if (entity != null) {
+                                    final StringBuffer resp = new StringBuffer();
+                                    final InputStream in = entity.getContent();
+                                    final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                                    String line;
+
+                                    while ((line = reader.readLine()) != null) {
+                                        resp.append(line);
+                                    }
+
+                                    reader.close();
+
+                                    this.gen.addResultToStorage(storage, resp.toString());
+
+                                }
+                            } else {
+                                this.gen.addErrorElement(storage, "An Exception occurred during the search!");
+                            }
+
+                        } else {
+                            System.out.println("Storage at " + client + " is not responding");
+                            this.gen.addErrorElement(storage, "Storage is not responding");
+
+                        }
+
+                        Date end = new Date();
+                        final long qos = end.getTime() - start.getTime();
+                        storage.addAttribute("time", Utilities.formatTime(qos));
+                    }
+
+                } else {
+                    System.out.println("Location Index at " + index + " is not responding");
+                    this.gen.addErrorElement(root, "LocationIndex is not responding");
+                }
+
+                Date gEnd = new Date();
+                root.addAttribute("time", Utilities.formatTime(gEnd.getTime() - gStart.getTime()));
+                return root.asXML();
+            }
+
+            this.gen.addErrorElement(root, "Could not obtain the Location index!").asXML();
+            return root.asXML();
+
+        } else {
+            this.gen.addErrorElement(root, "No Search Criteria specified!");
+            return root.asXML();
         }
 
     }
-
 }

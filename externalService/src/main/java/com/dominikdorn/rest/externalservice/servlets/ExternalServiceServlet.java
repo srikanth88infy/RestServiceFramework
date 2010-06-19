@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.dominikdorn.rest.marshalling.Marshaller;
 import com.dominikdorn.rest.services.EncodingNegotiator;
+import com.dominikdorn.rest.services.OutputType;
 import com.dominikdorn.rest.utils.Utilities;
 
 public class ExternalServiceServlet extends HttpServlet {
@@ -62,25 +63,28 @@ public class ExternalServiceServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) throws IOException {
-
+        PrintWriter out = res.getWriter();
         String criteria = req.getParameter("criteria");
+        String accept = req.getHeader("Accept");
         System.out.println("Search for: " + criteria);
         System.out.println("Getting Locations from MetaService...");
         final String addr = this.metaAddr + ":" + this.metaPort;
 
+        if (criteria.equals("")) {
+            out.println(this.emptySearchCriteria(accept));
+            return;
+        }
+
         if (Utilities.ping(addr)) {
-            
+
             final Date start = new Date();
             List<String> clients = Utilities.getClients(addr, this.marshaller);
             String response = "";
-            PrintWriter out = res.getWriter();
-            out.println("<html><head><title>Search</title></head>");
-            out.println("<body><h1>External Service Search</h1>");
 
             System.out.println(addr);
             for (String client : clients) {
 
-                if (client.startsWith("10")) { //ugly hack
+                if (client.startsWith("10")) { // ugly hack
                     continue;
                 } else {
 
@@ -96,7 +100,7 @@ public class ExternalServiceServlet extends HttpServlet {
                             con.setUseCaches(false);
                             con.setRequestProperty("Content-type", req.getContentType());
                             con.setRequestProperty("Content-length", "" + req.getContentLength());
-                            con.setRequestProperty("Accept", req.getHeader("Accept"));
+                            con.setRequestProperty("Accept", accept);
 
                             DataOutputStream dos = new DataOutputStream(con.getOutputStream());
                             dos.writeBytes("criteria=" + criteria);
@@ -104,14 +108,13 @@ public class ExternalServiceServlet extends HttpServlet {
 
                             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                             String line;
-                            
 
                             while ((line = in.readLine()) != null) {
                                 response = response + line;
                             }
 
                             in.close();
-                            
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -122,13 +125,14 @@ public class ExternalServiceServlet extends HttpServlet {
             }
             final Date end = new Date();
             final long qos = end.getTime() - start.getTime();
-            
-            System.out.println(Utilities.formatTime(qos));
-            out.println("<p>Request duration: " + Utilities.formatTime(qos) +  "</p>");
+
+            if (this.negotiator.detect(accept).equals(OutputType.XML)) {
+                response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<resultaggregate time = \""
+                    + Utilities.formatTime(qos) + "\">" + response + "</resultaggregate>";
+            }
+
             out.println(response);
-            out.println("</body></html>");
-            
-            
+
         } else {
             final RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/404.xhtml");
             try {
@@ -139,6 +143,16 @@ public class ExternalServiceServlet extends HttpServlet {
                 System.err.println(e.getMessage());
             }
         }
+    }
+
+    private String emptySearchCriteria(String accept) {
+        String defaultError = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<error>No search criteria provided! Please type something in the box</error>";
+        if (this.negotiator.detect(accept).equals(OutputType.XML)) {
+            return defaultError;
+
+        }
+
+        return defaultError;
 
     }
 }

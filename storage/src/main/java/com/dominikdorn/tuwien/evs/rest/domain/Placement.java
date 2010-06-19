@@ -3,6 +3,8 @@ package com.dominikdorn.tuwien.evs.rest.domain;
 import com.dominikdorn.rest.annotations.Restful;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
+
 import java.util.List;
 
 /**
@@ -29,10 +31,12 @@ public class Placement {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn(name = "ITEM_ID", referencedColumnName = "ID")
+    @XmlTransient
     private Item item;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn(name = "RACK_ID", referencedColumnName = "ID")
+    @XmlTransient
     private Rack rack;
 
     /** Generated code **/
@@ -85,6 +89,7 @@ public class Placement {
         this.item = item;
     }
 
+    @XmlTransient
     public Rack getRack() {
         return rack;
     }
@@ -110,8 +115,8 @@ public class Placement {
 
         if (amount != placement.amount) return false;
         if (id != placement.id) return false;
-        if (item != null ? !item.equals(placement.item) : placement.item != null) return false;
-        if (rack != null ? !rack.equals(placement.rack) : placement.rack != null) return false;
+        //if (item != null ? !item.equals(placement.item) : placement.item != null) return false;
+        //if (rack != null ? !rack.equals(placement.rack) : placement.rack != null) return false;
         if (storingPosition != null ? !storingPosition.equals(placement.storingPosition) : placement.storingPosition != null)
             return false;
 
@@ -123,8 +128,8 @@ public class Placement {
         int result = (int) (id ^ (id >>> 32));
         result = 31 * result + amount;
         result = 31 * result + (storingPosition != null ? storingPosition.hashCode() : 0);
-        result = 31 * result + (item != null ? item.hashCode() : 0);
-        result = 31 * result + (rack != null ? rack.hashCode() : 0);
+        //result = 31 * result + (item != null ? item.hashCode() : 0);
+        //result = 31 * result + (rack != null ? rack.hashCode() : 0);
         return result;
     }
 
@@ -152,4 +157,10 @@ public class Placement {
         if(alreadyUsedAmount + thisAmount > allSpace)
             throw new PersistenceException("Not enough space available");        
     }
+    
+    @PostLoad
+    public void postLoad() {
+        this.item = null;
+    }
+    
 }
